@@ -20,8 +20,9 @@ export interface IInsertResourceCollection {
     token: number
 }
 
-export interface IQueryResourceCollection {
-    response: string,
+export interface IQueryResourceCollectionDynamic<T> {
+    response: string | T | T[],
     tokens: number,
-    success: true
+    success: boolean
 }
+

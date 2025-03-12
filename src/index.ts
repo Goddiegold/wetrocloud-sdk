@@ -2,8 +2,7 @@ import FetchAPI from "./fetchApi";
 import {
     ICreateCollection, IErrorMessage,
     IInsertResourceCollection, IListCollection,
-    IQueryResourceCollection,
-
+    IQueryResourceCollectionDynamic
 } from "./types";
 import { errorMessage } from "./utils";
 
@@ -12,7 +11,7 @@ export default class WetroCloud {
     private fetchApi: FetchAPI;
 
     constructor({ apiSecret }: { apiSecret: string }) {
-        this.fetchApi = new FetchAPI({apiSecret});
+        this.fetchApi = new FetchAPI({ apiSecret });
     }
 
     public async createColllection(): Promise<ICreateCollection | IErrorMessage> {
@@ -55,20 +54,32 @@ export default class WetroCloud {
         }
     }
 
-    public async queryResources(
-        { collection_id, request_query }: {
-            collection_id: string, request_query: string
-        }): Promise<IQueryResourceCollection | IErrorMessage> {
+    public async queryResources<T>(
+        {
+            collection_id,
+            request_query,
+            json_schema,
+            json_schema_rules
+        }:
+            {
+                collection_id: string,
+                request_query: string,
+                json_schema?: T | T[],
+                json_schema_rules?: string,
+            }): Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>> {
         try {
+            const requestData: Record<string, any> = {
+                collection_id,
+                request_query,
+                ...(json_schema ? { json_schema } : {}),
+                ...(json_schema_rules ? { json_schema_rules } : {})
+            };
             const res = await this.fetchApi.request({
                 url: "/query/",
                 method: "post",
-                data: {
-                    collection_id,
-                    request_query
-                }
+                data: requestData
             })
-            return res as IQueryResourceCollection
+            return res;
         } catch (e) {
             return { message: errorMessage(e) }
         }
