@@ -1,6 +1,6 @@
 {
   "name": "wetrocloud-sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -12,7 +12,12 @@
     "url": "https://github.com/Goddiegold/wetrocloud-sdk"
   },
   "description": "A lightweight SDK for interacting with the WetroCloud API",
-  "keywords": ["wetrocloud", "api", "sdk", "typescript"],
+  "keywords": [
+    "wetrocloud",
+    "api",
+    "sdk",
+    "typescript"
+  ],
   "author": "Godwin Ehikhamhen",
   "license": "MIT",
   "devDependencies": {
