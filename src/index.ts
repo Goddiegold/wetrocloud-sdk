@@ -1,6 +1,7 @@
 import FetchAPI from "./fetchApi";
 import {
     ICreateCollection, IErrorMessage,
+    IGenericResponse,
     IInsertResourceCollection, IListCollection,
     IQueryResourceCollectionDynamic
 } from "./types";
@@ -25,7 +26,7 @@ export default class WetroCloud {
      */
     public async createColllection(): Promise<ICreateCollection | IErrorMessage> {
         try {
-            const res = await this.fetchApi.request({ url: "/create/", method: "post", data: {} })
+            const res = await this.fetchApi.request({ url: "/collection/", method: "post", data: {} })
             return res as ICreateCollection;
         } catch (e) {
             return { message: errorMessage(e) }
@@ -75,7 +76,7 @@ export default class WetroCloud {
     }): Promise<IInsertResourceCollection | IErrorMessage> {
         try {
             const res = await this.fetchApi.request({
-                url: "/insert/",
+                url: "/insert/resource/",
                 method: "post",
                 data: {
                     collection_id,
@@ -107,19 +108,22 @@ export default class WetroCloud {
  * const response = await sdk.queryResources({
  *     collection_id: "12345",
  *     request_query: "search query",
+ *     model:"gpt-4.5-preview",
  *     json_schema: { topic: "", description: "" }
  * });
  */
-    public async queryResources<T>(
+    public async queryResources<T = string>(
         {
             collection_id,
             request_query,
             json_schema,
-            json_schema_rules
+            json_schema_rules,
+            model
         }:
             {
                 collection_id: string,
                 request_query: string,
+                model?: string,
                 json_schema?: T | T[],
                 json_schema_rules?: string,
             }): Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>> {
@@ -128,14 +132,83 @@ export default class WetroCloud {
                 collection_id,
                 request_query,
                 ...(json_schema ? { json_schema } : {}),
-                ...(json_schema_rules ? { json_schema_rules } : {})
+                ...(json_schema_rules ? { json_schema_rules } : {}),
+                ...(model ? { model } : {}),
+
             };
             const res = await this.fetchApi.request({
-                url: "/query/",
+                url: "/collection/query/",
                 method: "post",
                 data: requestData
             })
             return res;
+        } catch (e) {
+            return { message: errorMessage(e) }
+        }
+    }
+
+    public async chatWithCollection<T = string>({
+        collection_id,
+        message,
+        chat_history
+    }: {
+        collection_id: string,
+        message: string,
+        chat_history: { role: "user" | "system", content: string }[]
+
+    }): Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>> {
+        try {
+            const requestData: Record<string, any> = {
+                collection_id,
+                message,
+                chat_history
+            };
+            const res = await this.fetchApi.request({
+                url: "/collection/query/",
+                method: "post",
+                data: requestData
+            })
+            return res;
+        } catch (e) {
+            return { message: errorMessage(e) }
+        }
+    }
+
+    public async deleteResource({ collection_id, resource_id }:
+        { collection_id: string, resource_id: string }): Promise<IGenericResponse | IErrorMessage> {
+        try {
+            const requestData = {
+                collection_id,
+                resource_id
+            };
+
+            const res = await this.fetchApi.request({
+                url: "/remove/resource/",
+                method: "delete",
+                data: requestData
+            })
+
+            return res;
+        } catch (e) {
+            return { message: errorMessage(e) }
+        }
+    }
+
+    public async deleteCollection({ collection_id }: { collection_id: string }):
+        Promise<IGenericResponse | IErrorMessage> {
+        try {
+            const requestData = {
+                collection_id
+            };
+
+            const res = await this.fetchApi.request({
+                url: "/collection/",
+                method: "delete",
+                data: requestData
+            })
+
+            return res;
+
         } catch (e) {
             return { message: errorMessage(e) }
         }

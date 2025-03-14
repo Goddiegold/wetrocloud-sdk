@@ -16,6 +16,7 @@ export interface IErrorMessage {
 }
 
 export interface IInsertResourceCollection {
+    resource_id: string,
     success: boolean,
     token: number
 }
@@ -23,6 +24,11 @@ export interface IInsertResourceCollection {
 export interface IQueryResourceCollectionDynamic<T> {
     response: string | T | T[],
     tokens: number,
+    success: boolean
+}
+
+export interface IGenericResponse {
+    message?: string,
     success: boolean
 }
 
