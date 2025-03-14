@@ -74,6 +74,7 @@ Queries resources from a collection.
 - `request_query: string` - The query string.
 - `json_schema?: T | T[]` - Optional JSON schema.
 - `json_schema_rules?: string` - Optional JSON schema rules.
+- `model?: string` - Optional model parameter.
 
 #### **Return Type:**
 ```typescript
@@ -85,37 +86,153 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>
 const response = await sdk.queryResources({
     collection_id: "12345",
     request_query: "search query",
-    json_schema: { topic: "", description: "" }
+    json_schema: { topic: "", description: "" },
+    model: "gpt-4"
 });
 ```
 
-## Interfaces
+### 5. `chatWithCollection<T>()`
+Chat with a collection using message history.
 
+#### **Parameters:**
+- `collection_id: string` - The ID of the collection.
+- `message: string` - The message to send.
+- `chat_history: { role: "user" | "system", content: string }[]` - Chat history.
+
+#### **Return Type:**
 ```typescript
-export interface ICreateCollection {
-    collection_id?: string,
-    success: boolean
-}
+Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>
+```
 
-export interface IListCollection {
-    collection_id: string,
-    created_at: string
-}
+#### **Example:**
+```typescript
+const response = await sdk.chatWithCollection({
+    collection_id: "12345",
+    message: "Hello, how does this work?",
+    chat_history: [{ role: "user", content: "Hello" }]
+});
+```
 
-export interface IErrorMessage {
-    message: string
-}
+### 6. `deleteResource()`
+Deletes a resource from a collection.
 
-export interface IInsertResourceCollection {
-    success: boolean,
-    token: number
-}
+#### **Parameters:**
+- `collection_id: string` - The ID of the collection.
+- `resource_id: string` - The ID of the resource to delete.
 
-export interface IQueryResourceCollectionDynamic<T> {
-    response: string | T | T[],
-    tokens: number,
-    success: boolean
-}
+#### **Return Type:**
+```typescript
+Promise<IGenericResponse | IErrorMessage>
+```
+
+#### **Example:**
+```typescript
+const response = await sdk.deleteResource({
+    collection_id: "12345",
+    resource_id: "67890"
+});
+```
+
+### 7. `deleteCollection()`
+Deletes an entire collection.
+
+#### **Parameters:**
+- `collection_id: string` - The ID of the collection.
+
+#### **Return Type:**
+```typescript
+Promise<IGenericResponse | IErrorMessage>
+```
+
+#### **Example:**
+```typescript
+const response = await sdk.deleteCollection({
+    collection_id: "12345"
+});
+```
+
+### 8. `categorizeResource<T>()`
+Categorizes a resource using predefined categories.
+
+#### **Parameters:**
+- `resource: string` - The resource to categorize.
+- `type: string` - The type of resource.
+- `json_schema: T | T[]` - JSON schema of the resource.
+- `categories: string[]` - List of categories.
+
+#### **Return Type:**
+```typescript
+Promise<ICatergorizeResource<T> | IErrorMessage>
+```
+
+#### **Example:**
+```typescript
+const response = await sdk.categorizeResource({
+    resource: "AI-generated text",
+    type: "text",
+    json_schema: { title: "", content: "" },
+    categories: ["AI", "Tech"]
+});
+```
+
+### 9. `generateTextWithoutRag()`
+Generates text without retrieval-augmented generation (RAG).
+
+#### **Parameters:**
+- `model: string` - The model to use.
+- `messages: { role: "user" | "system" | "assistant", content: string }[]` - Message history.
+
+#### **Return Type:**
+```typescript
+Promise<IGenericResponse | IErrorMessage>
+```
+
+#### **Example:**
+```typescript
+const response = await sdk.generateTextWithoutRag({
+    model: "gpt-4",
+    messages: [{ role: "user", content: "Tell me a joke." }]
+});
+```
+
+### 10. `generateTextFromImage()`
+Extracts text from an image.
+
+#### **Parameters:**
+- `image_url: string` - The URL of the image.
+- `request_query: string` - The query to process the image.
+
+#### **Return Type:**
+```typescript
+Promise<IGenericResponse | IErrorMessage>
+```
+
+#### **Example:**
+```typescript
+const response = await sdk.generateTextFromImage({
+    image_url: "https://example.com/image.jpg",
+    request_query: "Extract text from this image."
+});
+```
+
+### 11. `dataExtractionFromWebsite<T>()`
+Extracts structured data from a website.
+
+#### **Parameters:**
+- `website_url: string` - The URL of the website.
+- `json_schema: T | T[]` - The JSON schema defining the expected structure.
+
+#### **Return Type:**
+```typescript
+Promise<IDataExtraction<T> | IErrorMessage>
+```
+
+#### **Example:**
+```typescript
+const response = await sdk.dataExtractionFromWebsite({
+    website_url: "https://example.com",
+    json_schema: { title: "", body: "" }
+});
 ```
 
 ## Documentation
