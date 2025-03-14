@@ -27,8 +27,17 @@ export interface IQueryResourceCollectionDynamic<T> {
     success: boolean
 }
 
+export interface ICatergorizeResource<T> extends IQueryResourceCollectionDynamic<T> { }
 export interface IGenericResponse {
+    response?: string,
     message?: string,
     success: boolean
 }
 
+export interface IDataExtraction<T> {
+    response: {
+        [x: string]: T | T[]
+    }, 
+    tokens: number,
+    success: boolean
+}

@@ -1,4 +1,5 @@
 import Config from "./config";
+import { RequestMethods } from "./utils";
 
 let fetchFn: typeof fetch;
 
@@ -35,10 +36,10 @@ export default class FetchAPI {
         return fetchFn(Config.WETROCLOUD.API_URL + "/v1" + url, {
             signal: this.abortController.signal,
             method,
-            body: method !== "GET" ? (data instanceof FormData ? data : JSON.stringify(data)) : undefined,
+            body: method !== RequestMethods.GET ? (data instanceof FormData ? data : JSON.stringify(data)) : undefined,
             headers: {
-                "Content-Type": "application/json",
-                ...authHeaders, // Automatically sets Authorization
+                ...(data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' }),
+                ...authHeaders,
                 ...headers,
             },
         }).then(async (response) => {

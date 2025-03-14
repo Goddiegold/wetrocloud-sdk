@@ -1,11 +1,12 @@
 import FetchAPI from "./fetchApi";
 import {
-    ICreateCollection, IErrorMessage,
+    ICatergorizeResource,
+    ICreateCollection, IDataExtraction, IErrorMessage,
     IGenericResponse,
     IInsertResourceCollection, IListCollection,
     IQueryResourceCollectionDynamic
 } from "./types";
-import { errorMessage } from "./utils";
+import { errorMessage, RequestMethods } from "./utils";
 
 
 export default class WetroCloud {
@@ -26,7 +27,7 @@ export default class WetroCloud {
      */
     public async createColllection(): Promise<ICreateCollection | IErrorMessage> {
         try {
-            const res = await this.fetchApi.request({ url: "/collection/", method: "post", data: {} })
+            const res = await this.fetchApi.request({ url: "/collection/", method: RequestMethods.POST, data: {} })
             return res as ICreateCollection;
         } catch (e) {
             return { message: errorMessage(e) }
@@ -44,7 +45,7 @@ export default class WetroCloud {
  */
     public async listCollections(): Promise<IListCollection[] | IErrorMessage> {
         try {
-            const res = await this.fetchApi.request({ url: "/collection/", method: "get" })
+            const res = await this.fetchApi.request({ url: "/collection/", method: RequestMethods.GET })
             return res?.results as IListCollection[];
         } catch (e) {
             return { message: errorMessage(e) }
@@ -77,7 +78,7 @@ export default class WetroCloud {
         try {
             const res = await this.fetchApi.request({
                 url: "/insert/resource/",
-                method: "post",
+                method: RequestMethods.POST,
                 data: {
                     collection_id,
                     resource,
@@ -138,7 +139,7 @@ export default class WetroCloud {
             };
             const res = await this.fetchApi.request({
                 url: "/collection/query/",
-                method: "post",
+                method: RequestMethods.POST,
                 data: requestData
             })
             return res;
@@ -165,7 +166,7 @@ export default class WetroCloud {
             };
             const res = await this.fetchApi.request({
                 url: "/collection/query/",
-                method: "post",
+                method: RequestMethods.POST,
                 data: requestData
             })
             return res;
@@ -184,7 +185,7 @@ export default class WetroCloud {
 
             const res = await this.fetchApi.request({
                 url: "/remove/resource/",
-                method: "delete",
+                method: RequestMethods.DELETE,
                 data: requestData
             })
 
@@ -203,12 +204,119 @@ export default class WetroCloud {
 
             const res = await this.fetchApi.request({
                 url: "/collection/",
-                method: "delete",
+                method: RequestMethods.DELETE,
                 data: requestData
             })
 
             return res;
 
+        } catch (e) {
+            return { message: errorMessage(e) }
+        }
+    }
+
+    public async categorizeResource<T>({
+        resource,
+        type,
+        json_schema,
+        categories
+    }: {
+        resource: string,
+        type: string,
+        json_schema: T | T[]
+        categories: string[]
+
+    }): Promise<ICatergorizeResource<T> | IErrorMessage> {
+        try {
+            const requestData: Record<string, any> = {
+                resource,
+                type,
+                json_schema,
+                categories
+            };
+
+            const res = await this.fetchApi.request({
+                url: "/collection/",
+                method: RequestMethods.POST,
+                data: requestData
+            })
+
+            return res;
+        } catch (e) {
+            return { message: errorMessage(e) }
+        }
+    }
+
+    public async generateTextWithoutRag({
+        messages,
+        model
+    }: {
+        model: string,
+        messages: { role: "user" | "system" | "assistant", content: string }[]
+    }): Promise<IGenericResponse | IErrorMessage> {
+        try {
+            const requestData: Record<string, any> = {
+                messages,
+                model
+            }
+
+            const res = await this.fetchApi.request({
+                url: "/text-generation/",
+                method: RequestMethods.POST,
+                data: requestData
+            })
+
+            return res;
+        } catch (e) {
+            return { message: errorMessage(e) }
+        }
+    }
+
+    public async generateTextFromImage({
+        image_url,
+        request_query
+    }: {
+        image_url: string,
+        request_query: string
+    }): Promise<IGenericResponse | IErrorMessage> {
+        try {
+            const requestData: Record<string, any> = {
+                image_url,
+                request_query
+            }
+
+            const res = await this.fetchApi.request({
+                url: "/image-to-text/",
+                method: RequestMethods.POST,
+                data: requestData
+            })
+
+            return res;
+        } catch (e) {
+            return { message: errorMessage(e) }
+        }
+    }
+
+    public async dataExtractionFromWebsite<T>({
+        website_url,
+        json_schema
+    }: {
+        website_url: string,
+        json_schema: T | T[]
+    }): Promise<IDataExtraction<T> | IErrorMessage> {
+        try {
+            const requestData: Record<string, any> = {
+                website: website_url,
+                json_schema
+            }
+
+            const res = await this.fetchApi.request({
+                url: "/image-to-text/",
+                method: RequestMethods.POST,
+                data: requestData
+            })
+
+            return res;
         } catch (e) {
             return { message: errorMessage(e) }
         }
