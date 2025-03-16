@@ -21,8 +21,8 @@ export interface IInsertResourceCollection {
     token: number
 }
 
-export interface IQueryResourceCollectionDynamic<T> {
-    response: string | T | T[],
+export interface IQueryResourceCollectionDynamic<T=string> {
+    response: T | T[] | string,
     tokens: number,
     success: boolean
 }

@@ -1,4 +1,4 @@
-import FetchAPI from "./fetchApi";
+import AxiosAPI from "./axiosApi";
 import {
     ICatergorizeResource,
     ICreateCollection, IDataExtraction, IErrorMessage,
@@ -6,14 +6,15 @@ import {
     IInsertResourceCollection, IListCollection,
     IQueryResourceCollectionDynamic
 } from "./types";
-import { errorMessage, RequestMethods } from "./utils";
+import { errorMessage, generateRandomString, RequestMethods } from "./utils";
 
 
 export default class WetroCloud {
-    private fetchApi: FetchAPI;
+    private axiosApi: AxiosAPI;
 
     constructor({ apiSecret }: { apiSecret: string }) {
-        this.fetchApi = new FetchAPI({ apiSecret });
+        if (!apiSecret) throw new Error("apiSecret is required!")
+        this.axiosApi = new AxiosAPI({ apiSecret });
     }
 
     /**
@@ -25,9 +26,15 @@ export default class WetroCloud {
      * @example
      * const collection = await sdk.createCollection();
      */
-    public async createCollection(): Promise<ICreateCollection | IErrorMessage> {
+    public async createCollection({ collection_id }: { collection_id?: string }): Promise<ICreateCollection | IErrorMessage> {
         try {
-            const res = await this.fetchApi.request({ url: "/collection/", method: RequestMethods.POST, data: {} })
+            const formData = new FormData()
+            formData.append("collection_id", collection_id || generateRandomString(15))
+            const res = await this.axiosApi.request({
+                url: "/collection/create/",
+                method: RequestMethods.POST,
+                data: formData
+            })
             return res as ICreateCollection;
         } catch (e) {
             return { message: errorMessage(e) }
@@ -45,7 +52,10 @@ export default class WetroCloud {
  */
     public async listCollections(): Promise<IListCollection[] | IErrorMessage> {
         try {
-            const res = await this.fetchApi.request({ url: "/collection/", method: RequestMethods.GET })
+            const res = await this.axiosApi.request({
+                url: "/collection/all/",
+                method: RequestMethods.GET
+            })
             return res?.results as IListCollection[];
         } catch (e) {
             return { message: errorMessage(e) }
@@ -73,11 +83,11 @@ export default class WetroCloud {
         collection_id, resource, type
     }: {
         collection_id: string, resource: string,
-        type: string
+        type: "web" | "file" | "text" | "json" | "youtube"
     }): Promise<IInsertResourceCollection | IErrorMessage> {
         try {
-            const res = await this.fetchApi.request({
-                url: "/insert/resource/",
+            const res = await this.axiosApi.request({
+                url: "/resource/insert/",
                 method: RequestMethods.POST,
                 data: {
                     collection_id,
@@ -135,12 +145,12 @@ export default class WetroCloud {
             const requestData: Record<string, any> = {
                 collection_id,
                 request_query,
-                ...(json_schema ? { json_schema } : {}),
+                ...(json_schema ? { json_schema: JSON.stringify(json_schema) } : {}),
                 ...(json_schema_rules ? { json_schema_rules } : {}),
                 ...(model ? { model } : {}),
 
             };
-            const res = await this.fetchApi.request({
+            const res = await this.axiosApi.request({
                 url: "/collection/query/",
                 method: RequestMethods.POST,
                 data: requestData
@@ -196,7 +206,7 @@ export default class WetroCloud {
                 message,
                 chat_history
             };
-            const res = await this.fetchApi.request({
+            const res = await this.axiosApi.request({
                 url: "/collection/query/",
                 method: RequestMethods.POST,
                 data: requestData
@@ -230,38 +240,38 @@ export default class WetroCloud {
     public async deleteResource({ collection_id, resource_id }:
         { collection_id: string, resource_id: string }): Promise<IGenericResponse | IErrorMessage> {
         try {
-            const requestData = {
-                collection_id,
-                resource_id
-            };
+            const formData = new FormData()
 
-            const res = await this.fetchApi.request({
-                url: "/remove/resource/",
+            formData.append("collection_id", collection_id)
+            formData.append("resource_id", resource_id)
+
+            const res = await this.axiosApi.request({
+                url: "/resource/remove/",
                 method: RequestMethods.DELETE,
-                data: requestData
+                data: formData
             })
 
-            return res;
+            return res as IGenericResponse;
         } catch (e) {
             return { message: errorMessage(e) }
         }
     }
 
-     /**
-     * Deletes an entire collection from WetroCloud.
-     *
-     * This permanently removes the specified collection and all its associated resources.
-     *
-     * @param {string} collection_id - The unique identifier of the collection to be deleted.
-     *
-     * @returns {Promise<IGenericResponse | IErrorMessage>}
-     * A promise that resolves to a success message or an error message if the operation fails.
-     *
-     * @example
-     * const response = await sdk.deleteCollection({ collection_id: "12345" });
-     *
-     * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/delete
-     */
+    /**
+    * Deletes an entire collection from WetroCloud.
+    *
+    * This permanently removes the specified collection and all its associated resources.
+    *
+    * @param {string} collection_id - The unique identifier of the collection to be deleted.
+    *
+    * @returns {Promise<IGenericResponse | IErrorMessage>}
+    * A promise that resolves to a success message or an error message if the operation fails.
+    *
+    * @example
+    * const response = await sdk.deleteCollection({ collection_id: "12345" });
+    *
+    * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/delete
+    */
     public async deleteCollection({ collection_id }: { collection_id: string }):
         Promise<IGenericResponse | IErrorMessage> {
         try {
@@ -269,8 +279,8 @@ export default class WetroCloud {
                 collection_id
             };
 
-            const res = await this.fetchApi.request({
-                url: "/collection/",
+            const res = await this.axiosApi.request({
+                url: "/collection/delete/",
                 method: RequestMethods.DELETE,
                 data: requestData
             })
@@ -315,7 +325,7 @@ export default class WetroCloud {
         categories
     }: {
         resource: string,
-        type: string,
+        type: "web" | "file" | "text" | "json" | "youtube",
         json_schema: T | T[]
         categories: string[]
 
@@ -324,47 +334,47 @@ export default class WetroCloud {
             const requestData: Record<string, any> = {
                 resource,
                 type,
-                json_schema,
+                json_schema: JSON.stringify(json_schema),
                 categories
             };
 
-            const res = await this.fetchApi.request({
-                url: "/collection/",
+            const res = await this.axiosApi.request({
+                url: "/categorize/",
                 method: RequestMethods.POST,
                 data: requestData
             })
 
-            return res;
+            return res as ICatergorizeResource<T>;
         } catch (e) {
             return { message: errorMessage(e) }
         }
     }
 
-        /**
-     * Generates text using WetroCloud's open-source language models.
-     *
-     * This endpoint allows you to generate natural language responses without relying on
-     * Retrieval-Augmented Generation (RAG), supporting conversational interactions through a
-     * message-based format.
-     *
-     * @param {string} model - The model to be used for text generation (e.g., "gpt-4.5-turbo").
-     *                        Check all supported models here: https://docs.wetrocloud.com/endpoint-explanations/models
-     * @param {Array<{ role: "user" | "system" | "assistant", content: string }>} messages - An array of messages representing the conversation history.
-     *
-     * @returns {Promise<IGenericResponse | IErrorMessage>}
-     * A promise that resolves to the generated text response or an error message if the request fails.
-     *
-     * @example
-     * const response = await sdk.generateTextWithoutRag({
-     *     model: "gpt-4.5-turbo",
-     *     messages: [
-     *         { role: "user", content: "What's the capital of France?" },
-     *         { role: "assistant", content: "Paris." }
-     *     ]
-     * });
-     *
-     * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/text-generation
-     */
+    /**
+ * Generates text using WetroCloud's open-source language models.
+ *
+ * This endpoint allows you to generate natural language responses without relying on
+ * Retrieval-Augmented Generation (RAG), supporting conversational interactions through a
+ * message-based format.
+ *
+ * @param {string} model - The model to be used for text generation (e.g., "gpt-4.5-turbo").
+ *                        Check all supported models here: https://docs.wetrocloud.com/endpoint-explanations/models
+ * @param {Array<{ role: "user" | "system" | "assistant", content: string }>} messages - An array of messages representing the conversation history.
+ *
+ * @returns {Promise<IGenericResponse | IErrorMessage>}
+ * A promise that resolves to the generated text response or an error message if the request fails.
+ *
+ * @example
+ * const response = await sdk.generateTextWithoutRag({
+ *     model: "gpt-4.5-turbo",
+ *     messages: [
+ *         { role: "user", content: "What's the capital of France?" },
+ *         { role: "assistant", content: "Paris." }
+ *     ]
+ * });
+ *
+ * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/text-generation
+ */
 
     public async generateTextWithoutRag({
         messages,
@@ -374,15 +384,15 @@ export default class WetroCloud {
         messages: { role: "user" | "system" | "assistant", content: string }[]
     }): Promise<IGenericResponse | IErrorMessage> {
         try {
-            const requestData: Record<string, any> = {
-                messages,
-                model
-            }
 
-            const res = await this.fetchApi.request({
+            const formData = new FormData()
+            formData.append("model", model)
+            formData.append("messages", JSON.stringify(messages))
+
+            const res = await this.axiosApi.request({
                 url: "/text-generation/",
                 method: RequestMethods.POST,
-                data: requestData
+                data: formData
             })
 
             return res;
@@ -425,7 +435,7 @@ export default class WetroCloud {
                 request_query
             }
 
-            const res = await this.fetchApi.request({
+            const res = await this.axiosApi.request({
                 url: "/image-to-text/",
                 method: RequestMethods.POST,
                 data: requestData
@@ -437,28 +447,28 @@ export default class WetroCloud {
         }
     }
 
-        /**
-     * Extracts structured data from a website using WetroCloud's data-extraction endpoint.
-     *
-     * This allows you to retrieve specific data from a web page in a structured JSON format 
-     * based on your predefined JSON schema.
-     *
-     * @template T - The expected structure of the extracted data.
-     *
-     * @param {string} website_url - The URL of the website to extract data from.
-     * @param {T | T[]} json_schema - The JSON schema to structure the extracted data.
-     *
-     * @returns {Promise<IDataExtraction<T> | IErrorMessage>}
-     * A promise that resolves to the extracted data or an error message if the request fails.
-     *
-     * @example
-     * const response = await sdk.dataExtractionFromWebsite({
-     *     website_url: "https://example.com",
-     *     json_schema: { title: "", description: "" }
-     * });
-     *
-     * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/data-extraction
-     */
+    /**
+ * Extracts structured data from a website using WetroCloud's data-extraction endpoint.
+ *
+ * This allows you to retrieve specific data from a web page in a structured JSON format 
+ * based on your predefined JSON schema.
+ *
+ * @template T - The expected structure of the extracted data.
+ *
+ * @param {string} website_url - The URL of the website to extract data from.
+ * @param {T | T[]} json_schema - The JSON schema to structure the extracted data.
+ *
+ * @returns {Promise<IDataExtraction<T> | IErrorMessage>}
+ * A promise that resolves to the extracted data or an error message if the request fails.
+ *
+ * @example
+ * const response = await sdk.dataExtractionFromWebsite({
+ *     website_url: "https://example.com",
+ *     json_schema: { title: "", description: "" }
+ * });
+ *
+ * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/data-extraction
+ */
     public async dataExtractionFromWebsite<T>({
         website_url,
         json_schema
@@ -467,15 +477,15 @@ export default class WetroCloud {
         json_schema: T | T[]
     }): Promise<IDataExtraction<T> | IErrorMessage> {
         try {
-            const requestData: Record<string, any> = {
-                website: website_url,
-                json_schema
-            }
 
-            const res = await this.fetchApi.request({
+            const formData = new FormData();
+            formData.append('website', website_url)
+            formData.append('json_schema', JSON.stringify(json_schema))
+
+            const res = await this.axiosApi.request({
                 url: "/image-to-text/",
                 method: RequestMethods.POST,
-                data: requestData
+                data: formData
             })
 
             return res;
