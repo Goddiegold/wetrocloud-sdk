@@ -2,7 +2,7 @@ require('dotenv').config(); //this should always be first
 import { beforeAll, describe, expect, it } from '@jest/globals';
 import Wetrocloud from "..";
 import Config from "../config";
-import { ICatergorizeResource, ICreateCollection, IDataExtraction, IGenericResponse, IInsertResourceCollection, IListCollection, IQueryResourceCollectionDynamic } from '../types';
+import { ICatergorizeResource, ICreateCollection, IDataExtraction, IGenericResponse, IInsertResourceCollection, IListCollection, IQueryResourceCollectionDynamic, ResourceType } from '../types';
 
 
 let wetrocloud: Wetrocloud;
@@ -50,7 +50,7 @@ describe('Wetrocloud SDK Tests', () => {
             const response = await wetrocloud.insertResource({
                 collection_id,
                 resource: "https://dev.to/hayleycodes/deploying-a-node-js-site-to-vultr-j8d",
-                type: "web"
+                type: ResourceType.WEB
             })
 
             console.log("insert a resource", response);
@@ -123,7 +123,7 @@ describe('Wetrocloud SDK Tests', () => {
         try {
             const result = await wetrocloud.categorizeResource({
                 resource: "match review: John Cena vs. The Rock",
-                type: "text",
+                type:ResourceType.TEXT,
                 "json_schema": { 'label': '' },
                 "categories": ["football", "coding", "entertainment", "basketball", "wrestling", "information"]
             })

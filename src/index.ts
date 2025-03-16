@@ -4,7 +4,8 @@ import {
     ICreateCollection, IDataExtraction, IErrorMessage,
     IGenericResponse,
     IInsertResourceCollection, IListCollection,
-    IQueryResourceCollectionDynamic
+    IQueryResourceCollectionDynamic,
+    ResourceType
 } from "./types";
 import { errorMessage, generateRandomString, RequestMethods } from "./utils";
 
@@ -19,12 +20,16 @@ export default class WetroCloud {
 
     /**
      * Creates a new collection in WetroCloud.
-     *
+     * @param {string} [collection_id] - (Optional) The unique identifier of the collection where the resource will be inserted. 
+     * If not provided, a random ID will be generated
      * @returns {Promise<ICreateCollection | IErrorMessage>} A promise that resolves to an object containing
      * the created collection_id and success status or an error message if the operation fails.
      *
      * @example
      * const collection = await sdk.createCollection();
+     * 
+     * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/create
+     * 
      */
     public async createCollection({ collection_id }: { collection_id?: string }): Promise<ICreateCollection | IErrorMessage> {
         try {
@@ -42,14 +47,17 @@ export default class WetroCloud {
     }
 
     /**
- * Retrieves a list of all your available collections in WetroCloud.
- *
- * @returns {Promise<IListCollection[] | IErrorMessage>} A promise that resolves to an array of collection objects 
- * containing collection IDs and creation timestamps, or an error message if the request fails.
- *
- * @example
- * const collections = await sdk.listCollections();
- */
+     * Retrieves a list of all your available collections in WetroCloud.
+     *
+     * @returns {Promise<IListCollection[] | IErrorMessage>} A promise that resolves to an array of collection objects 
+     * containing collection IDs and creation timestamps, or an error message if the request fails.
+     *
+     * @example
+     * const collections = await sdk.listCollections();
+     * 
+     * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/list-collections
+     * 
+     */
     public async listCollections(): Promise<IListCollection[] | IErrorMessage> {
         try {
             const res = await this.axiosApi.request({
@@ -63,27 +71,29 @@ export default class WetroCloud {
     }
 
     /**
- * Inserts a resource into an existing collection in WetroCloud.
- *
- * @param {string} collection_id - The unique identifier of the collection where the resource will be inserted.
- * @param {string} resource - The resource data to be added to the collection.
- * @param {string} type - The type of the resource (e.g., text, file, etc.).
- *
- * @returns {Promise<IInsertResourceCollection | IErrorMessage>} A promise that resolves to an object 
- * containing the success status and a token for tracking, or an error message if the request fails.
- *
- * @example
- * const response = await sdk.insertResource({
- *     collection_id: "12345",
- *     resource: "Sample text",
- *     type: "text"
- * });
- */
+     * Inserts a resource into an existing collection in WetroCloud.
+     *
+     * @param {string} collection_id - The unique identifier of the collection where the resource will be inserted.
+     * @param {string} resource - The resource data to be added to the collection.
+     * @param {ResourceType} type - The type of the resource (web, file, text, json, youtube).
+     *
+     * @returns {Promise<IInsertResourceCollection | IErrorMessage>} A promise that resolves to an object 
+     * containing the success status and a token for tracking, or an error message if the request fails.
+     *
+     * @example
+     * const response = await sdk.insertResource({
+     *     collection_id: "12345",
+     *     resource: "Sample text",
+     *     type: "text"
+     * });
+     * 
+     * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/insert
+     */
     public async insertResource({
         collection_id, resource, type
     }: {
         collection_id: string, resource: string,
-        type: "web" | "file" | "text" | "json" | "youtube"
+        type: ResourceType
     }): Promise<IInsertResourceCollection | IErrorMessage> {
         try {
             const res = await this.axiosApi.request({
@@ -125,8 +135,10 @@ export default class WetroCloud {
  *     model:"gpt-4.5-preview",
  *     json_schema: { topic: "", description: "" }
  * });
+ * 
+ * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/query
  */
-    public async queryResources<T = string>(
+    public async queryResources<T>(
         {
             collection_id,
             request_query,
@@ -142,6 +154,7 @@ export default class WetroCloud {
                 json_schema_rules?: string,
             }): Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>> {
         try {
+            type json_schema_type = typeof json_schema;
             const requestData: Record<string, any> = {
                 collection_id,
                 request_query,
@@ -155,7 +168,9 @@ export default class WetroCloud {
                 method: RequestMethods.POST,
                 data: requestData
             })
-            return res;
+
+
+            return { ...(res || {}), response: res?.response as json_schema_type };
         } catch (e) {
             return { message: errorMessage(e) }
         }
@@ -301,7 +316,7 @@ export default class WetroCloud {
      * @template T - The expected structure of the resource.
      *
      * @param {string} resource - The ID or reference of the resource to be categorized.
-     * @param {string} type - The type of resource being categorized (e.g., "text", "image", etc.).
+     * @param {ResourceType} type - The type of the resource (web, file, text, json, youtube). - The type of resource being categorized (e.g., "text", "image", etc.).
      * @param {T | T[]} json_schema - The JSON schema that defines the structure of the resource.
      * @param {string[]} categories - An array of category names to associate the resource with.
      *
@@ -325,7 +340,7 @@ export default class WetroCloud {
         categories
     }: {
         resource: string,
-        type: "web" | "file" | "text" | "json" | "youtube",
+        type: ResourceType,
         json_schema: T | T[]
         categories: string[]
 
