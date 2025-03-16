@@ -21,6 +21,9 @@ const sdk = new WetroCloud({ apiSecret: "your-api-secret" });
 ### 1. `createCollection()`
 Creates a new collection.
 
+#### **Parameters:**
+- `collection_id: string` - (Optional) The unique ID of the collection.
+
 #### **Return Type:**
 ```typescript
 Promise<ICreateCollection | IErrorMessage>
