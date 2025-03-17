@@ -1,8 +1,8 @@
 require('dotenv').config(); //this should always be first
 import { beforeAll, describe, expect, it } from '@jest/globals';
-import Wetrocloud from "..";
-import Config from "../config";
-import { ICatergorizeResource, ICreateCollection, IDataExtraction, IGenericResponse, IInsertResourceCollection, IListCollection, IQueryResourceCollectionDynamic, ResourceType } from '../types';
+import Wetrocloud from "../index.js";
+import Config from "../config.js";
+import { ICatergorizeResource, ICreateCollection, IDataExtraction, IGenericResponse, IInsertResourceCollection, IListCollection, IQueryResourceCollectionDynamic, ResourceType } from '../types/index.js';
 
 
 let wetrocloud: Wetrocloud;

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-import Config from "./config";
+import Config from "./config.js";
 
 export default class AxiosAPI {
     private apiSecret: string;

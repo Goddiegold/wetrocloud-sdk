@@ -1,4 +1,4 @@
-import AxiosAPI from "./axiosApi";
+import AxiosAPI from "./axiosApi.js";
 import {
     ICatergorizeResource,
     ICreateCollection, IDataExtraction, IErrorMessage,
@@ -6,11 +6,11 @@ import {
     IInsertResourceCollection, IListCollection,
     IQueryResourceCollectionDynamic,
     ResourceType
-} from "./types";
-import { errorMessage, generateRandomString, RequestMethods } from "./utils";
+} from "./types/index.js";
+import { errorMessage, generateRandomString, RequestMethods } from "./utils.js";
 
 
-export default class WetroCloud {
+class WetroCloud {
     private axiosApi: AxiosAPI;
 
     constructor({ apiSecret }: { apiSecret: string }) {
@@ -509,3 +509,8 @@ export default class WetroCloud {
         }
     }
 }
+
+export default WetroCloud;
+if (typeof module !== 'undefined') {
+    module.exports = WetroCloud;
+  }    

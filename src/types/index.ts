@@ -1,5 +1,5 @@
 
-export * from "./response.types"
+export * from "./response.types.js"
 
 export enum ResourceType {
     WEB = "web",
