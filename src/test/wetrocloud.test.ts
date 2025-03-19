@@ -67,8 +67,8 @@ describe('Wetrocloud SDK Tests', () => {
 
     it('query a collection', async () => {
         try {
-            const shouldRun = false;
-            if (!shouldRun) return;
+            // const shouldRun = false;
+            // if (!shouldRun) return;
             const json_schema = { step: "", description: "" }
             const response = await wetrocloud.queryResources({
                 collection_id,
@@ -85,7 +85,7 @@ describe('Wetrocloud SDK Tests', () => {
         } catch (error) {
             throw error; // Re-throw the error to fail the test
         }
-    })
+    }, 10000)
 
     it('delete a resource', async () => {
         try {
