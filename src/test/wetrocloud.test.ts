@@ -70,18 +70,29 @@ describe('Wetrocloud SDK Tests', () => {
             // const shouldRun = false;
             // if (!shouldRun) return;
             const json_schema = { step: "", description: "" }
-            const response = await wetrocloud.queryResources({
+            const shouldBeStreamed = true
+            const responseStream = await wetrocloud.queryResource({
                 collection_id,
                 request_query: "What do I need to deploy my application to vultr ?",
                 json_schema,
-                json_schema_rules: "Give a very short description of every step"
+                json_schema_rules: "Give a very short description of every step",
+                stream: shouldBeStreamed
             })
 
-            console.log("querying collection", response);
+            console.log("querying collection", responseStream);
 
-            const queryResource = response as IQueryResourceCollectionDynamic<typeof json_schema>
-            expect(queryResource?.success).toBe(true)
-            expect(queryResource).toHaveProperty('response');
+            if (shouldBeStreamed) {
+                //@ts-ignore
+                for await (const item of responseStream) {
+                    console.log("Received item:", item);
+                }
+            }
+
+            const queryResource = responseStream as IQueryResourceCollectionDynamic<typeof json_schema>
+            if (!shouldBeStreamed) {
+                expect(queryResource?.success).toBe(true)
+                expect(queryResource).toHaveProperty('response');
+            }
         } catch (error) {
             throw error; // Re-throw the error to fail the test
         }
@@ -121,9 +132,9 @@ describe('Wetrocloud SDK Tests', () => {
 
     it('categorize a resource', async () => {
         try {
-            const result = await wetrocloud.categorizeResource({
+            const result = await wetrocloud.categorize({
                 resource: "match review: John Cena vs. The Rock",
-                type:ResourceType.TEXT,
+                type: ResourceType.TEXT,
                 "json_schema": { 'label': '' },
                 "categories": ["football", "coding", "entertainment", "basketball", "wrestling", "information"]
             })
@@ -139,7 +150,7 @@ describe('Wetrocloud SDK Tests', () => {
 
     it('text generation without RAG', async () => {
         try {
-            const result = await wetrocloud.generateTextWithoutRag({
+            const result = await wetrocloud.textGeneration({
                 messages: [{ role: 'user', content: 'what is a large language model?' }],
                 model: "llama-3.3-70b"
             })
@@ -160,7 +171,7 @@ describe('Wetrocloud SDK Tests', () => {
         try {
             const imageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQBQcwHfud1w3RN25Wgys6Btt_Y-4mPrD2kg&s';
             const query = 'What animal is this?';
-            const result = await wetrocloud.generateTextFromImage({
+            const result = await wetrocloud.imageToText({
                 image_url: imageUrl,
                 request_query: query
             })
@@ -178,7 +189,7 @@ describe('Wetrocloud SDK Tests', () => {
         try {
             const website = "https://www.forbes.com/real-time-billionaires/#7583ee253d78"
             const json_schema = [{ "name": "<name of rich man>", "networth": "<amount worth>" }]
-            const result = await wetrocloud.dataExtractionFromWebsite({
+            const result = await wetrocloud.extract({
                 website_url: website,
                 json_schema
             })

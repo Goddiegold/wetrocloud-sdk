@@ -1,3 +1,4 @@
+import { Readable } from "stream";
 import AxiosAPI from "./axiosApi.js";
 import {
     ICatergorizeResource,
@@ -123,6 +124,7 @@ class WetroCloud {
  * @param {string} [model] - (Optional) The AI model to use for the query. 
  *                          Defaults to WetroCloud's default model if not provided.
  *                          Check supported models here: https://docs.wetrocloud.com/endpoint-explanations/models
+ * @param {boolean} [stream=true] - Optional. Determines whether the response should be streamed. Defaults to `true`.
  *
  * @returns {Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>} 
  * A promise that resolves to the query result containing the response data, token usage,
@@ -138,13 +140,14 @@ class WetroCloud {
  * 
  * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/query
  */
-    public async queryResources<T>(
+    public async queryResource<T>(
         {
             collection_id,
             request_query,
             json_schema,
             json_schema_rules,
-            model
+            model,
+            stream = true
         }:
             {
                 collection_id: string,
@@ -152,7 +155,8 @@ class WetroCloud {
                 model?: string,
                 json_schema?: T | T[],
                 json_schema_rules?: string,
-            }): Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>> {
+                stream?: boolean
+            }): Promise<IErrorMessage | IQueryResourceCollectionDynamic<T> | unknown> {
         try {
             type json_schema_type = typeof json_schema;
             const requestData: Record<string, any> = {
@@ -161,14 +165,50 @@ class WetroCloud {
                 ...(json_schema ? { json_schema: JSON.stringify(json_schema) } : {}),
                 ...(json_schema_rules ? { json_schema_rules } : {}),
                 ...(model ? { model } : {}),
-
+                // stream
             };
             const res = await this.axiosApi.request({
                 url: "/collection/query/",
                 method: RequestMethods.POST,
-                data: requestData
+                data: requestData,
+                ...(stream ? { responseType: "stream" } : {})
             })
 
+            const resultStream = res as Readable;
+
+            if (stream) {
+                return (async function* () {
+                    let buffer = "";
+                    for await (const chunk of resultStream) {
+                        buffer += chunk.toString();
+                        let parts = buffer.split("\n");
+
+                        // Process complete JSON lines
+                        while (parts.length > 1) {
+                            const jsonPart = parts.shift();
+                            if (jsonPart?.trim()) {
+                                try {
+                                    yield JSON.parse(jsonPart) as T;
+                                } catch (e) {
+                                    console.error("Error parsing JSON chunk:", jsonPart, e);
+                                }
+                            }
+                        }
+
+                        // Keep the last part (it might be incomplete)
+                        buffer = parts.join("\n");
+                    }
+
+                    // Process any remaining buffered data
+                    if (buffer.trim()) {
+                        try {
+                            yield JSON.parse(buffer) as T;
+                        } catch (e) {
+                            console.error("Error parsing final JSON chunk:", buffer, e);
+                        }
+                    }
+                })();
+            }
 
             return { ...(res || {}), response: res?.response as json_schema_type };
         } catch (e) {
@@ -205,7 +245,7 @@ class WetroCloud {
      *
      * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/chat
      */
-    public async chatWithCollection<T = string>({
+    public async chat<T = string>({
         collection_id,
         message,
         chat_history
@@ -333,7 +373,7 @@ class WetroCloud {
      *
      * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/category
      */
-    public async categorizeResource<T>({
+    public async categorize<T>({
         resource,
         type,
         json_schema,
@@ -391,7 +431,7 @@ class WetroCloud {
  * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/text-generation
  */
 
-    public async generateTextWithoutRag({
+    public async textGeneration({
         messages,
         model
     }: {
@@ -437,7 +477,7 @@ class WetroCloud {
      * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/image-to-text
      */
 
-    public async generateTextFromImage({
+    public async imageToText({
         image_url,
         request_query
     }: {
@@ -484,7 +524,7 @@ class WetroCloud {
  *
  * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/data-extraction
  */
-    public async dataExtractionFromWebsite<T>({
+    public async extract<T>({
         website_url,
         json_schema
     }: {
@@ -513,4 +553,4 @@ class WetroCloud {
 export default WetroCloud;
 if (typeof module !== 'undefined') {
     module.exports = WetroCloud;
-  }    
+}    

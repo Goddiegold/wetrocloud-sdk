@@ -5,3 +5,11 @@
 # npm version major  # For breaking changes
 
 # npm publish
+
+
+#scoped project
+# {
+#   "name": "@your-username/my-awesome-package",
+#   "version": "1.0.0",
+#   "main": "index.js"
+# }

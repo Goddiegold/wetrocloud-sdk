@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, ResponseType } from "axios";
 import Config from "./config.js";
 
 export default class AxiosAPI {
@@ -22,17 +22,20 @@ export default class AxiosAPI {
         method,
         data,
         headers = {},
+        responseType
     }: {
         url: string;
         method: string;
         data?: FormData | Record<string, string>;
         headers?: Record<string, string>;
+        responseType?: ResponseType
     }) {
         return this.axiosInstance({
             url,
             method,
             data,
             headers,
+            responseType
         }).then((response) => response.data);
     }
 
