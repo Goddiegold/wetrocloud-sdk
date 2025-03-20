@@ -136,7 +136,8 @@ describe('Wetrocloud SDK Tests', () => {
                 resource: "match review: John Cena vs. The Rock",
                 type: ResourceType.TEXT,
                 "json_schema": { 'label': '' },
-                "categories": ["football", "coding", "entertainment", "basketball", "wrestling", "information"]
+                "categories": ["football", "coding", "entertainment", "basketball", "wrestling", "information"],
+                prompt: "Where does this fall under?"
             })
             console.log("categorizing a resource", result);
             const _result = (result as ICatergorizeResource<{ label: string }>)
@@ -151,7 +152,7 @@ describe('Wetrocloud SDK Tests', () => {
     it('text generation without RAG', async () => {
         try {
             const result = await wetrocloud.textGeneration({
-                messages: [{ role: 'user', content: 'what is a large language model?' }],
+                messages: [{ "role": "user", "content": "what is a large language model?" }],
                 model: "llama-3.3-70b"
             })
 

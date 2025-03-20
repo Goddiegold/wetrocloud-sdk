@@ -31,7 +31,7 @@ export default class AxiosAPI {
         responseType?: ResponseType
     }) {
         return this.axiosInstance({
-            url,
+            url: url + `?referrer=node_sdk`,
             method,
             data,
             headers,

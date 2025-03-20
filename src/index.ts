@@ -350,25 +350,27 @@ class WetroCloud {
     /**
      * Categorizes a resource in WetroCloud.
      *
-     * This allows you to organize a resource into specific categories within a collection
+     * This allows you to organize a resource into specific categories
      * based on a provided JSON schema.
      *
      * @template T - The expected structure of the resource.
      *
-     * @param {string} resource - The ID or reference of the resource to be categorized.
+     * @param {string} resource - The the resource to be categorized.
      * @param {ResourceType} type - The type of the resource (web, file, text, json, youtube). - The type of resource being categorized (e.g., "text", "image", etc.).
      * @param {T | T[]} json_schema - The JSON schema that defines the structure of the resource.
      * @param {string[]} categories - An array of category names to associate the resource with.
+     * @param {string} prompt - An overall command of your request
      *
      * @returns {Promise<ICatergorizeResource<T> | IErrorMessage>}
      * A promise that resolves to the categorized resource or an error message if the operation fails.
      *
      * @example
      * const response = await sdk.categorizeResource({
-     *     resource: "resource_id",
+     *     resource: "match review: John Cena vs. The Rock are fighting",
      *     type: "text",
-     *     json_schema: { topic: "", description: "" },
-     *     categories: ["AI", "Machine Learning"]
+     *     json_schema: {'label':'string'},
+     *     categories: ["football", "Machine Learning","wrestling"], 
+     *     prompt: "Where does this fall under?", 
      * });
      *
      * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/category
@@ -377,12 +379,14 @@ class WetroCloud {
         resource,
         type,
         json_schema,
-        categories
+        categories,
+        prompt
     }: {
         resource: string,
         type: ResourceType,
         json_schema: T | T[]
-        categories: string[]
+        categories: string[],
+        prompt: string
 
     }): Promise<ICatergorizeResource<T> | IErrorMessage> {
         try {
@@ -390,7 +394,8 @@ class WetroCloud {
                 resource,
                 type,
                 json_schema: JSON.stringify(json_schema),
-                categories
+                categories,
+                prompt
             };
 
             const res = await this.axiosApi.request({
@@ -423,8 +428,7 @@ class WetroCloud {
  * const response = await sdk.generateTextWithoutRag({
  *     model: "gpt-4.5-turbo",
  *     messages: [
- *         { role: "user", content: "What's the capital of France?" },
- *         { role: "assistant", content: "Paris." }
+ *         { "role": "user", content: "What's the capital of France?" },
  *     ]
  * });
  *
@@ -443,11 +447,16 @@ class WetroCloud {
             const formData = new FormData()
             formData.append("model", model)
             formData.append("messages", JSON.stringify(messages))
+            const requestBody: Record<string, any> = {
+                model,
+                messages
+            }
+            // formData.append("messages", messages)
 
             const res = await this.axiosApi.request({
                 url: "/text-generation/",
                 method: RequestMethods.POST,
-                data: formData
+                data: requestBody
             })
 
             return res;
