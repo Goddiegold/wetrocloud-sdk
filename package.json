@@ -1,5 +1,5 @@
 {
-  "name": "wetro",
+  "name": "wetro-sdk",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/cjs/src/index.js",        
