@@ -1,16 +1,16 @@
 {
   "name": "wetro-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
-  "main": "dist/cjs/src/index.js",        
-  "module": "dist/esm/src/index.js",      
+  "main": "dist/cjs/src/index.js",
+  "module": "dist/esm/src/index.js",
   "types": "dist/esm/src/index.d.ts",
   "exports": {
-    "import": "./dist/esm/src/index.js", 
-    "require": "./dist/cjs/src/index.js" 
+    "import": "./dist/esm/src/index.js",
+    "require": "./dist/cjs/src/index.js"
   },
   "scripts": {
-   "build": "tsc && tsc -p tsconfig.cjs.json",
+    "build": "tsc && tsc -p tsconfig.cjs.json",
     "prepublishOnly": "npm run build",
     "test": "jest"
   },
