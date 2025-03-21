@@ -8,7 +8,7 @@ The **WetroCloud SDK** provides an easy way to interact with the WetroCloud API,
 
 ```sh
 
-npm install wetrocloud-sdk
+npm install wetro-sdk
 
 ```
 
@@ -17,7 +17,7 @@ npm install wetrocloud-sdk
 ### Importing the SDK
 
 ```typescript
-import Wetrocloud from "wetrocloud-sdk";
+import Wetrocloud from "wetro-sdk";
 
 const sdk = new Wetrocloud({ apiSecret: "your-api-secret" });
 ```
