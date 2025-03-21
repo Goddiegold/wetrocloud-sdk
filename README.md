@@ -17,9 +17,9 @@ npm install wetrocloud-sdk
 ### Importing the SDK
 
 ```typescript
-import WetroCloud from "wetrocloud-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
-const sdk = new WetroCloud({ apiSecret: "your-api-secret" });
+const sdk = new Wetrocloud({ apiSecret: "your-api-secret" });
 ```
 
 ## Available Methods
@@ -41,7 +41,7 @@ Promise<ICreateCollection | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const collection = await sdk.createCollection();
+const collection = await sdk.createCollection({collection_id:'unique_id'});
 ```
 
 ### 2. `listCollections()`
