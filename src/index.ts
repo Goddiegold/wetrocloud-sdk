@@ -11,7 +11,7 @@ import {
 import { errorMessage, generateRandomString, RequestMethods } from "./utils.js";
 
 
-class WetroCloud {
+class Wetrocloud {
     private axiosApi: AxiosAPI;
 
     constructor({ apiSecret }: { apiSecret: string }) {
@@ -547,7 +547,7 @@ class WetroCloud {
             formData.append('json_schema', JSON.stringify(json_schema))
 
             const res = await this.axiosApi.request({
-                url: "/image-to-text/",
+                url: "/data-extraction/",
                 method: RequestMethods.POST,
                 data: formData
             })
@@ -559,7 +559,7 @@ class WetroCloud {
     }
 }
 
-export default WetroCloud;
+export default Wetrocloud;
 if (typeof module !== 'undefined') {
-    module.exports = WetroCloud;
+    module.exports = Wetrocloud;
 }    
