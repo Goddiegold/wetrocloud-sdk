@@ -98,6 +98,23 @@ describe('Wetrocloud SDK Tests', () => {
         }
     }, 10000)
 
+    it('chat with collection', async () => {
+        try {
+            const chat_history: { role: "user" | "system"; content: string }[] = [{ "role": "user", "content": "What is this all about" }]
+            const result = await wetrocloud.chat({
+                collection_id,
+                message: "Tell me more",
+                chat_history
+            })
+
+            const _result = result as IQueryResourceCollectionDynamic<string>
+            console.log("chat with collection", result);
+            expect(_result?.response).toBeDefined()
+        } catch (error) {
+
+        }
+    })
+
     it('delete a resource', async () => {
         try {
             const response = await wetrocloud.deleteResource({
