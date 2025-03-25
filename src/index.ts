@@ -262,7 +262,8 @@ class Wetrocloud {
                 chat_history
             };
             const res = await this.axiosApi.request({
-                url: "/collection/query/",
+                url: "/collection/chat/",
+                // url: "/collection/query/",
                 method: RequestMethods.POST,
                 data: requestData
             })
