@@ -115,11 +115,11 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.queryResource({
+const response = await sdk.queryCollection({
   collection_id: "12345",
   request_query: "search query",
-  json_schema: { topic: "", description: "" },
-  model: "gpt-4",
+  // json_schema: { topic: "", description: "" },
+  // model: "gpt-4",
 });
 ```
 

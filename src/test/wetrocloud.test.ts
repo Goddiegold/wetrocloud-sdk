@@ -71,7 +71,7 @@ describe('Wetrocloud SDK Tests', () => {
             // if (!shouldRun) return;
             const json_schema = { step: "", description: "" }
             const shouldBeStreamed = true
-            const responseStream = await wetrocloud.queryResource({
+            const responseStream = await wetrocloud.queryCollection({
                 collection_id,
                 request_query: "What do I need to deploy my application to vultr ?",
                 json_schema,
