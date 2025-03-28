@@ -83,9 +83,7 @@ Promise<IInsertResourceCollection | IErrorMessage>;
 ```typescript
 const response = await sdk.insertResource({
   collection_id: "12345",
-
   resource: "Sample text",
-
   type: "text",
 });
 ```
@@ -117,13 +115,10 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.queryResources({
+const response = await sdk.queryResource({
   collection_id: "12345",
-
   request_query: "search query",
-
   json_schema: { topic: "", description: "" },
-
   model: "gpt-4",
 });
 ```
@@ -151,9 +146,7 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>;
 ```typescript
 const response = await sdk.chat({
   collection_id: "12345",
-
   message: "Hello, how does this work?",
-
   chat_history: [{ "role": "user", "content": "Hello" }],
 });
 ```
@@ -179,7 +172,6 @@ Promise<IGenericResponse | IErrorMessage>;
 ```typescript
 const response = await sdk.deleteResource({
   collection_id: "12345",
-
   resource_id: "67890",
 });
 ```
@@ -233,11 +225,8 @@ Promise<ICatergorizeResource<T> | IErrorMessage>;
 ```typescript
 const response = await sdk.categorize({
   resource: "match review: John Cena vs. The Rock are fighting",
-
   type: "text",
-
   json_schema: { title: "", content: "" },
-
   categories: [
     "football",
     "coding",
@@ -246,7 +235,6 @@ const response = await sdk.categorize({
     "wrestling",
     "information",
   ],
-
   prompt: "Where does this fall under?",
 });
 ```
@@ -272,7 +260,6 @@ Promise<IGenericResponse | IErrorMessage>;
 ```typescript
 const response = await sdk.textGeneration({
   model: "gpt-4",
-
   messages: [{ "role": "user", "content": "Tell me a joke." }],
 });
 ```
@@ -298,7 +285,6 @@ Promise<IGenericResponse | IErrorMessage>;
 ```typescript
 const response = await sdk.imageToText({
   image_url: "https://example.com/image.jpg",
-
   request_query: "Extract text from this image.",
 });
 ```
@@ -324,7 +310,6 @@ Promise<IDataExtraction<T> | IErrorMessage>;
 ```typescript
 const response = await sdk.extract({
   website_url: "https://example.com",
-
   json_schema: { title: "", body: "" },
 });
 ```
