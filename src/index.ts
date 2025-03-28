@@ -131,7 +131,7 @@ class Wetrocloud {
  * and success status, or an error message if the request fails.
  *
  * @example
- * const response = await sdk.queryResources({
+ * const response = await queryCollection({
  *     collection_id: "12345",
  *     request_query: "search query",
  *     model:"gpt-4.5-preview",
@@ -140,7 +140,7 @@ class Wetrocloud {
  * 
  * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/query
  */
-    public async queryResource<T>(
+    public async queryCollection<T>(
         {
             collection_id,
             request_query,
