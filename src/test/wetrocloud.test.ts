@@ -52,8 +52,10 @@ describe('Wetrocloud SDK Tests', () => {
         try {
             const response = await wetrocloud.insertResource({
                 collection_id,
-                resource: "https://dev.to/hayleycodes/deploying-a-node-js-site-to-vultr-j8d",
-                type: "web"
+                // resource: "https://dev.to/hayleycodes/deploying-a-node-js-site-to-vultr-j8d",
+                // type: "web"
+                resource: '../doc.pdf',
+                type: 'file',
             })
 
             console.log("insert a resource", response);
@@ -66,7 +68,7 @@ describe('Wetrocloud SDK Tests', () => {
         } catch (error) {
             throw error; // Re-throw the error to fail the test
         }
-    })
+    }, 50000)
 
     it('query a collection', async () => {
         try {

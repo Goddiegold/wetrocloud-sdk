@@ -79,7 +79,7 @@ class Wetrocloud {
      * Inserts a resource into an existing collection in WetroCloud.
      *
      * @param {string} collection_id - The unique identifier of the collection where the resource will be inserted.
-     * @param {string} resource - The resource data to be added to the collection.
+     * @param {string} resource - The the resource to be categorized: local file - e.g ./resource.pdf, remote file - e.g https://s3.amazon/dog.pdf", "plain text",
      * @param {string} type - The type of the resource (web, file, text, json, youtube).
      *
      * @returns {Promise<IInsertResourceCollection | IErrorMessage>} A promise that resolves to an object 
@@ -88,7 +88,7 @@ class Wetrocloud {
      * @example
      * const response = await sdk.insertResource({
      *     collection_id: "12345",
-     *     resource: "Sample text",
+     *     resource: "./data.pdf",
      *     type: "text"
      * });
      * 
@@ -101,13 +101,28 @@ class Wetrocloud {
         type: string
     }): Promise<IInsertResourceCollection | IErrorMessage> {
         try {
+            let finalResource = resource;
+            let finalType = type;
+
+            if (!resource.startsWith("https://") && finalType === "file") {
+                const formData = new _FormData()
+                const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
+                formData.append("file", fileStream as unknown as Blob, path.basename(resource))
+                formData.append("collection_id", collection_id)
+                const uploadFileRes = await axios.post(`${Config.WETROCLOUD.UPLOAD_URL}/upload/`, formData, {
+                    headers: formData.getHeaders()
+                })
+                finalResource = uploadFileRes?.data?.url
+                finalType = "file";
+            }
+
             const res = await this.axiosApi.request({
                 url: "/resource/insert/",
                 method: RequestMethods.POST,
                 data: {
                     collection_id,
-                    resource,
-                    type
+                    resource: finalResource,
+                    type: finalType,
                 }
             })
             return res as IInsertResourceCollection
@@ -360,7 +375,7 @@ class Wetrocloud {
      *
      * @template T - The expected structure of the resource.
      *
-     * @param {string} resource - The the resource to be categorized.
+     * @param {string} resource - The the resource to be categorized: local file - e.g ./resource.pdf, remote file - e.g https://s3.amazon/dog.pdf", "plain text",
      * @param {string} type - The type of the resource (web, file, text, json, youtube). - The type of resource being categorized (e.g., "text", "image", etc.).
      * @param {T | T[]} json_schema - The JSON schema that defines the structure of the resource.
      * @param {string[]} categories - An array of category names to associate the resource with.
@@ -371,7 +386,7 @@ class Wetrocloud {
      *
      * @example
      * const response = await sdk.categorizeResource({
-     *     resource: local filename - e.g ./resource.pdf, remote file - e.g https://s3.amazon/dog.pdf",
+     *     resource: "./data.pdf",
      *     type: "text",
      *     json_schema: {'label':'string'},
      *     categories: ["football", "Machine Learning","wrestling"], 
@@ -400,7 +415,7 @@ class Wetrocloud {
             let finalResource = resource;
             let finalType = type;
 
-            if (!resource.startsWith("https://")) {
+            if (!resource.startsWith("https://") && finalType === "file") {
                 const formData = new _FormData()
                 const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
                 formData.append("file", fileStream as unknown as Blob, path.basename(resource))
