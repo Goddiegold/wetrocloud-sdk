@@ -118,8 +118,6 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>;
 const response = await sdk.queryCollection({
   collection_id: "12345",
   request_query: "search query",
-  // json_schema: { topic: "", description: "" },
-  // model: "gpt-4",
 });
 ```
 

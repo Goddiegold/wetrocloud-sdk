@@ -1,8 +1,11 @@
 require('dotenv').config(); //this should always be first
 import { beforeAll, describe, expect, it } from '@jest/globals';
-import Wetrocloud from "../index.js";
 import Config from "../config.js";
-import { ICatergorizeResource, ICreateCollection, IDataExtraction, IGenericResponse, IInsertResourceCollection, IListCollection, IQueryResourceCollectionDynamic, ResourceType } from '../types/index.js';
+import Wetrocloud from "../index.js";
+import {
+    ICatergorizeResource, ICreateCollection, IDataExtraction,
+    IGenericResponse, IInsertResourceCollection, IListCollection, IQueryResourceCollectionDynamic
+} from '../types/index.js';
 
 
 let wetrocloud: Wetrocloud;
@@ -50,7 +53,7 @@ describe('Wetrocloud SDK Tests', () => {
             const response = await wetrocloud.insertResource({
                 collection_id,
                 resource: "https://dev.to/hayleycodes/deploying-a-node-js-site-to-vultr-j8d",
-                type: ResourceType.WEB
+                type: "web"
             })
 
             console.log("insert a resource", response);
@@ -131,6 +134,26 @@ describe('Wetrocloud SDK Tests', () => {
         }
     })
 
+    it('categorize a resource', async () => {
+        try {
+            const result = await wetrocloud.categorize({
+                resource: '../doc.pdf',
+                type: 'file',
+                "json_schema": { 'label': '' },
+                collection_id,
+                "categories": ["football", "coding", "entertainment", "basketball", "wrestling", "information"],
+                prompt: "Where does this fall under?"
+            })
+            console.log("categorizing a resource", result);
+            const _result = (result as ICatergorizeResource<{ label: string }>)
+            const response = _result?.response as { label: string };
+            expect(response?.label).toBeDefined();
+            expect(_result?.success).toBe(true)
+        } catch (error) {
+            throw error; // Re-throw the error to fail the test
+        }
+    }, 50000)
+
     it('delete a collection', async () => {
         try {
             const response = await wetrocloud.deleteCollection({
@@ -147,24 +170,6 @@ describe('Wetrocloud SDK Tests', () => {
         }
     })
 
-    it('categorize a resource', async () => {
-        try {
-            const result = await wetrocloud.categorize({
-                resource: "match review: John Cena vs. The Rock",
-                type: ResourceType.TEXT,
-                "json_schema": { 'label': '' },
-                "categories": ["football", "coding", "entertainment", "basketball", "wrestling", "information"],
-                prompt: "Where does this fall under?"
-            })
-            console.log("categorizing a resource", result);
-            const _result = (result as ICatergorizeResource<{ label: string }>)
-            const response = _result?.response as { label: string };
-            expect(response?.label).toBeDefined();
-            expect(_result?.success).toBe(true)
-        } catch (error) {
-            throw error; // Re-throw the error to fail the test
-        }
-    })
 
     it('text generation without RAG', async () => {
         try {

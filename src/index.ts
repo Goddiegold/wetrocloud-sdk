@@ -1,12 +1,16 @@
+import axios from "axios";
+import _FormData from 'form-data';
+import * as fs from "fs";
+import path from "path";
 import { Readable } from "stream";
 import AxiosAPI from "./axiosApi.js";
+import Config from "./config.js";
 import {
     ICatergorizeResource,
     ICreateCollection, IDataExtraction, IErrorMessage,
     IGenericResponse,
     IInsertResourceCollection, IListCollection,
-    IQueryResourceCollectionDynamic,
-    ResourceType
+    IQueryResourceCollectionDynamic
 } from "./types/index.js";
 import { errorMessage, generateRandomString, RequestMethods } from "./utils.js";
 
@@ -76,7 +80,7 @@ class Wetrocloud {
      *
      * @param {string} collection_id - The unique identifier of the collection where the resource will be inserted.
      * @param {string} resource - The resource data to be added to the collection.
-     * @param {ResourceType} type - The type of the resource (web, file, text, json, youtube).
+     * @param {string} type - The type of the resource (web, file, text, json, youtube).
      *
      * @returns {Promise<IInsertResourceCollection | IErrorMessage>} A promise that resolves to an object 
      * containing the success status and a token for tracking, or an error message if the request fails.
@@ -94,7 +98,7 @@ class Wetrocloud {
         collection_id, resource, type
     }: {
         collection_id: string, resource: string,
-        type: ResourceType
+        type: string
     }): Promise<IInsertResourceCollection | IErrorMessage> {
         try {
             const res = await this.axiosApi.request({
@@ -147,7 +151,7 @@ class Wetrocloud {
             json_schema,
             json_schema_rules,
             model,
-            stream = true
+            stream = false
         }:
             {
                 collection_id: string,
@@ -357,7 +361,7 @@ class Wetrocloud {
      * @template T - The expected structure of the resource.
      *
      * @param {string} resource - The the resource to be categorized.
-     * @param {ResourceType} type - The type of the resource (web, file, text, json, youtube). - The type of resource being categorized (e.g., "text", "image", etc.).
+     * @param {string} type - The type of the resource (web, file, text, json, youtube). - The type of resource being categorized (e.g., "text", "image", etc.).
      * @param {T | T[]} json_schema - The JSON schema that defines the structure of the resource.
      * @param {string[]} categories - An array of category names to associate the resource with.
      * @param {string} prompt - An overall command of your request
@@ -367,7 +371,7 @@ class Wetrocloud {
      *
      * @example
      * const response = await sdk.categorizeResource({
-     *     resource: "match review: John Cena vs. The Rock are fighting",
+     *     resource: local filename - e.g ./resource.pdf, remote file - e.g https://s3.amazon/dog.pdf",
      *     type: "text",
      *     json_schema: {'label':'string'},
      *     categories: ["football", "Machine Learning","wrestling"], 
@@ -381,19 +385,36 @@ class Wetrocloud {
         type,
         json_schema,
         categories,
-        prompt
+        prompt,
+        collection_id,
     }: {
         resource: string,
-        type: ResourceType,
+        type: string,
         json_schema: T | T[]
         categories: string[],
+        collection_id: string,
         prompt: string
 
     }): Promise<ICatergorizeResource<T> | IErrorMessage> {
         try {
+            let finalResource = resource;
+            let finalType = type;
+
+            if (!resource.startsWith("https://")) {
+                const formData = new _FormData()
+                const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
+                formData.append("file", fileStream as unknown as Blob, path.basename(resource))
+                formData.append("collection_id", collection_id)
+                const uploadFileRes = await axios.post(`${Config.WETROCLOUD.UPLOAD_URL}/upload/`, formData, {
+                    headers: formData.getHeaders()
+                })
+                finalResource = uploadFileRes?.data?.url
+                finalType = "file";
+            }
+
             const requestData: Record<string, any> = {
-                resource,
-                type,
+                resource: finalResource,
+                type: finalType,
                 json_schema: JSON.stringify(json_schema),
                 categories,
                 prompt
