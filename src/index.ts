@@ -597,6 +597,7 @@ class Wetrocloud {
 }
 
 export default Wetrocloud;
+export * from './types/index.js';  
 if (typeof module !== 'undefined') {
     module.exports = Wetrocloud;
 }    
