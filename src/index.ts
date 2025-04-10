@@ -168,7 +168,7 @@ class Wetrocloud {
             json_schema,
             json_schema_rules,
             model,
-            stream = false
+            stream
         }:
             {
                 collection_id: string,

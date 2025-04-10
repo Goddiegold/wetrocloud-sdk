@@ -40,7 +40,7 @@ describe('Wetrocloud SDK Tests', () => {
             const response = await wetrocloud.listCollections()
             console.log("Lisiting Collections", response);
             const collections = response as IListCollection[]
-            // collection_id = collections[0].collection_id
+            collection_id = collections[0].collection_id
             expect(Array.isArray(collections)).toBe(true);
             expect(collections[0]).toHaveProperty('collection_id');
             expect(collections[0].collection_id).toBe(collection_id);
@@ -79,7 +79,8 @@ describe('Wetrocloud SDK Tests', () => {
             const shouldBeStreamed = true
             const responseStream = await wetrocloud.queryCollection({
                 collection_id,
-                request_query: "What do I need to deploy my application to vultr ?",
+                // request_query: "What do I need to deploy my application to vultr ?",
+                request_query: "what is this about ?",
                 json_schema,
                 json_schema_rules: "Give a very short description of every step",
                 stream: shouldBeStreamed
