@@ -40,6 +40,7 @@ describe('Wetrocloud SDK Tests', () => {
             const response = await wetrocloud.listCollections()
             console.log("Lisiting Collections", response);
             const collections = response as IListCollection[]
+            // collection_id = collections[0].collection_id
             expect(Array.isArray(collections)).toBe(true);
             expect(collections[0]).toHaveProperty('collection_id');
             expect(collections[0].collection_id).toBe(collection_id);
@@ -54,7 +55,7 @@ describe('Wetrocloud SDK Tests', () => {
                 collection_id,
                 // resource: "https://dev.to/hayleycodes/deploying-a-node-js-site-to-vultr-j8d",
                 // type: "web"
-                resource: '../doc.pdf',
+                resource: './doc.pdf',
                 type: 'file',
             })
 
@@ -139,7 +140,7 @@ describe('Wetrocloud SDK Tests', () => {
     it('categorize a resource', async () => {
         try {
             const result = await wetrocloud.categorize({
-                resource: '../doc.pdf',
+                resource: './doc.pdf',
                 type: 'file',
                 "json_schema": { 'label': '' },
                 collection_id,

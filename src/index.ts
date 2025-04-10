@@ -36,7 +36,7 @@ class Wetrocloud {
      * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/create
      * 
      */
-    public async createCollection({ collection_id }: { collection_id?: string }): Promise<ICreateCollection | IErrorMessage> {
+    public async createCollection({ collection_id }: { collection_id?: string }): Promise<ICreateCollection> {
         try {
             const formData = new FormData()
             formData.append("collection_id", collection_id || generateRandomString(15))
@@ -47,7 +47,8 @@ class Wetrocloud {
             })
             return res as ICreateCollection;
         } catch (e) {
-            return { message: errorMessage(e) }
+            errorMessage(e)
+            return e
         }
     }
 
@@ -106,7 +107,8 @@ class Wetrocloud {
 
             if (!resource.startsWith("https://") && finalType === "file") {
                 const formData = new _FormData()
-                const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
+                // const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
+                const fileStream = fs.createReadStream(`${process.cwd()}/${resource}`);
                 formData.append("file", fileStream as unknown as Blob, path.basename(resource))
                 formData.append("collection_id", collection_id)
                 const uploadFileRes = await axios.post(`${Config.WETROCLOUD.UPLOAD_URL}/upload/`, formData, {
@@ -417,7 +419,8 @@ class Wetrocloud {
 
             if (!resource.startsWith("https://") && finalType === "file") {
                 const formData = new _FormData()
-                const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
+                // const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
+                const fileStream = fs.createReadStream(`${process.cwd()}/${resource}`);
                 formData.append("file", fileStream as unknown as Blob, path.basename(resource))
                 formData.append("collection_id", collection_id)
                 const uploadFileRes = await axios.post(`${Config.WETROCLOUD.UPLOAD_URL}/upload/`, formData, {
