@@ -18,9 +18,9 @@ import { errorMessage, generateRandomString, RequestMethods } from "./utils.js";
 class Wetrocloud {
     private axiosApi: AxiosAPI;
 
-    constructor({ apiSecret }: { apiSecret: string }) {
-        if (!apiSecret) throw new Error("apiSecret is required!")
-        this.axiosApi = new AxiosAPI({ apiSecret });
+    constructor({ apiKey }: { apiKey: string }) {
+        if (!apiKey) throw new Error("apiKey is required!")
+        this.axiosApi = new AxiosAPI({ apiKey });
     }
 
     /**
@@ -145,7 +145,7 @@ class Wetrocloud {
  * @param {string} [model] - (Optional) The AI model to use for the query. 
  *                          Defaults to WetroCloud's default model if not provided.
  *                          Check supported models here: https://docs.wetrocloud.com/endpoint-explanations/models
- * @param {boolean} [stream=true] - Optional. Determines whether the response should be streamed. Defaults to `true`.
+ * @param {boolean} [stream=false] - Optional. Determines whether the response should be streamed. Defaults to `false`.
  *
  * @returns {Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>} 
  * A promise that resolves to the query result containing the response data, token usage,
@@ -249,6 +249,8 @@ class Wetrocloud {
      * @param {string} message - The user's message or query.
      * @param {{ role: "user" | "system", content: string }[]} chat_history - The conversation history
      * to maintain context during the chat.
+     * @param {boolean} [stream=false] - Optional. Determines whether the response should be streamed. Defaults to `false`.
+     * 
      *
      * @returns {Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>} 
      * A promise that resolves to the collection's response, token usage, and success status,
@@ -269,13 +271,15 @@ class Wetrocloud {
     public async chat<T = string>({
         collection_id,
         message,
-        chat_history
+        chat_history,
+        stream
     }: {
         collection_id: string,
         message: string,
-        chat_history: { role: "user" | "system", content: string }[]
+        chat_history: { role: "user" | "system", content: string }[],
+        stream?: boolean
 
-    }): Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>> {
+    }): Promise<IErrorMessage | IQueryResourceCollectionDynamic<T> | unknown> {
         try {
             const requestData: Record<string, any> = {
                 collection_id,
@@ -286,8 +290,48 @@ class Wetrocloud {
                 url: "/collection/chat/",
                 // url: "/collection/query/",
                 method: RequestMethods.POST,
-                data: requestData
+                data: requestData,
+                ...(stream ? { responseType: "stream" } : {})
+
             })
+
+
+            if (stream) {
+                const resultStream = res as Readable;
+                return (async function* () {
+                    let buffer = "";
+                    for await (const chunk of resultStream) {
+                        buffer += chunk.toString();
+                        let parts = buffer.split("\n");
+
+                        // Process complete JSON lines
+                        while (parts.length > 1) {
+                            const jsonPart = parts.shift();
+                            if (jsonPart?.trim()) {
+                                try {
+                                    yield JSON.parse(jsonPart) as T;
+                                } catch (e) {
+                                    console.error("Error parsing JSON chunk:", jsonPart, e);
+                                }
+                            }
+                        }
+
+                        // Keep the last part (it might be incomplete)
+                        buffer = parts.join("\n");
+                    }
+
+                    // Process any remaining buffered data
+                    if (buffer.trim()) {
+                        try {
+                            yield JSON.parse(buffer) as T;
+                        } catch (e) {
+                            console.error("Error parsing final JSON chunk:", buffer, e);
+                        }
+                    }
+                })();
+            }
+
+            return { ...(res || {}), response: res?.response };
             return res;
         } catch (e) {
             return { message: errorMessage(e) }
@@ -464,6 +508,8 @@ class Wetrocloud {
  * @returns {Promise<IGenericResponse | IErrorMessage>}
  * A promise that resolves to the generated text response or an error message if the request fails.
  *
+ * @param {boolean} [stream=false] - Optional. Determines whether the response should be streamed. Defaults to `false`.
+ * 
  * @example
  * const response = await sdk.generateTextWithoutRag({
  *     model: "gpt-4.5-turbo",
@@ -477,11 +523,13 @@ class Wetrocloud {
 
     public async textGeneration({
         messages,
-        model
+        model,
+        stream
     }: {
         model: string,
         messages: { role: "user" | "system" | "assistant", content: string }[]
-    }): Promise<IGenericResponse | IErrorMessage> {
+        stream?: boolean
+    }): Promise<IGenericResponse | IErrorMessage | unknown> {
         try {
 
             const formData = new FormData()
@@ -496,10 +544,48 @@ class Wetrocloud {
             const res = await this.axiosApi.request({
                 url: "/text-generation/",
                 method: RequestMethods.POST,
-                data: requestBody
+                data: requestBody,
+                ...(stream ? { responseType: "stream" } : {})
+
             })
 
-            return res;
+            if (stream) {
+                const resultStream = res as Readable;
+
+                return (async function* () {
+                    let buffer = "";
+                    for await (const chunk of resultStream) {
+                        buffer += chunk.toString();
+                        let parts = buffer.split("\n");
+
+                        // Process complete JSON lines
+                        while (parts.length > 1) {
+                            const jsonPart = parts.shift();
+                            if (jsonPart?.trim()) {
+                                try {
+                                    yield JSON.parse(jsonPart) as T;
+                                } catch (e) {
+                                    console.error("Error parsing JSON chunk:", jsonPart, e);
+                                }
+                            }
+                        }
+
+                        // Keep the last part (it might be incomplete)
+                        buffer = parts.join("\n");
+                    }
+
+                    // Process any remaining buffered data
+                    if (buffer.trim()) {
+                        try {
+                            yield JSON.parse(buffer);
+                        } catch (e) {
+                            console.error("Error parsing final JSON chunk:", buffer, e);
+                        }
+                    }
+                })();
+            }
+
+            return { ...(res || {}), response: res?.response };
         } catch (e) {
             return { message: errorMessage(e) }
         }
@@ -600,7 +686,7 @@ class Wetrocloud {
 }
 
 export default Wetrocloud;
-export * from './types/index.js';  
+export * from './types/index.js';
 if (typeof module !== 'undefined') {
     module.exports = Wetrocloud;
 }    

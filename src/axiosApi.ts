@@ -2,16 +2,16 @@ import axios, { AxiosInstance, ResponseType } from "axios";
 import Config from "./config.js";
 
 export default class AxiosAPI {
-    private apiSecret: string;
+    private apiKey: string;
     private axiosInstance: AxiosInstance;
 
-    constructor({ apiSecret }: { apiSecret: string }) {
-        this.apiSecret = apiSecret;
+    constructor({ apiKey}: {apiKey: string }) {
+        this.apiKey = apiKey;
 
         this.axiosInstance = axios.create({
             baseURL: Config.WETROCLOUD.API_URL + "/v1",
             headers: {
-                Authorization: `Token ${this.apiSecret}`,
+                Authorization: `Token ${this.apiKey}`,
                 'Content-Type': 'application/json',
             },
         });
