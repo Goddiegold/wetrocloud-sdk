@@ -19,7 +19,7 @@ npm install wetro-sdk
 ```typescript
 import Wetrocloud from "wetro-sdk";
 
-const sdk = new Wetrocloud({ apiSecret: "your-api-secret" });
+const sdk = new Wetrocloud({ apiKey: "your-api-key" });
 ```
 
 ## Available Methods
@@ -41,7 +41,14 @@ Promise<ICreateCollection | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const collection = await sdk.createCollection({collection_id:'unique_id'});
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+
+const collection_id = 'unique_id'; //this is optional if not specified one would be generated for you.
+const response = await wetrocloud.createCollection({ collection_id });
+
+console.log("Creating Collection", response);
 ```
 
 ### 2. `listCollections()`
@@ -57,7 +64,12 @@ Promise<IListCollection[] | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const collections = await sdk.listCollections();
+import Wetrocloud from "wetro-sdk";
+ 
+const wetrocloud = new Wetrocloud();
+const response = await wetrocloud.listCollections();
+
+console.log("Lisiting Collections", response);
 ```
 
 ### 3. `insertResource()`
@@ -81,11 +93,16 @@ Promise<IInsertResourceCollection | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.insertResource({
-  collection_id: "12345",
-  resource: "Sample text",
-  type: "text",
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+const response = await wetrocloud.insertResource({
+  collection_id: "<collection_id>",
+  resource: "https://medium.com/@AlexanderObregon/a-brief-history-of-artificial-intelligence-1656693721f9#:~:text=In%20this%20article%2C%20we%20explore,learning%20are%20breaking%20new%20ground.",
+  type: "web"
 });
+
+console.log("insert a resource", response);
 ```
 
 ### 4. `queryResource<T>()`
@@ -104,7 +121,7 @@ Queries resources from a collection.
 
 - `model?: string` - Optional model parameter.
 
-- `stream?: boolean` - Optional. Determines whether the response should be streamed. Defaults to `true`.
+- `stream?: boolean` - Optional. Determines whether the response should be streamed. Defaults to `false`.
 
 #### **Return Type:**
 
@@ -115,10 +132,19 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.queryCollection({
-  collection_id: "12345",
-  request_query: "search query",
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+
+const collectionId = '<collection_id>';
+const query = 'What are the sales trends for Q1?';
+
+const response = await wetrocloud.queryResource({
+  collection_id: collectionId,
+  request_query: query,
 });
+
+console.log("Querying resource", response);
 ```
 
 ### 5. `chat<T>()`
@@ -133,6 +159,8 @@ Chat with a collection using message history.
 
 - `chat_history: { "role": "user" | "system", "content": string }[]` - Chat history.
 
+- `stream?: boolean` - Optional. Determines whether the response should be streamed. Defaults to `false`.
+
 #### **Return Type:**
 
 ```typescript
@@ -142,11 +170,19 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.chat({
-  collection_id: "12345",
-  message: "Hello, how does this work?",
-  chat_history: [{ "role": "user", "content": "Hello" }],
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+const response = await wetrocloud.chat({
+ collection_id:"<collection_id>",
+ message:"Tell me more",
+ chat_history:[
+    {"role":"user", "content":"What is this all about?"}, 
+    {"role":"system","content":"This is about Queen Elizabeth_II of England"}
+ ]
 });
+
+console.log("Chat with collection", response);
 ```
 
 ### 6. `deleteResource()`
@@ -168,10 +204,15 @@ Promise<IGenericResponse | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.deleteResource({
-  collection_id: "12345",
-  resource_id: "67890",
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+const response = await wetrocloud.deleteResource({
+  collection_id: '<collection_id>',
+  resource_id: '<resource_id>'
 });
+
+console.log("Deleting resource", response);
 ```
 
 ### 7. `deleteCollection()`
@@ -191,9 +232,14 @@ Promise<IGenericResponse | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.deleteCollection({
-  collection_id: "12345",
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+const response = await wetrocloud.deleteCollection({
+  collection_id:'<collection_id>',
 });
+
+console.log("Deleting collection", response);
 ```
 
 ### 8. `categorize<T>()`
@@ -221,20 +267,20 @@ Promise<ICatergorizeResource<T> | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.categorize({
-  resource: "match review: John Cena vs. The Rock are fighting",
-  type: "text",
-  json_schema: { title: "", content: "" },
-  categories: [
-    "football",
-    "coding",
-    "entertainment",
-    "basketball",
-    "wrestling",
-    "information",
-  ],
-  prompt: "Where does this fall under?",
-});
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+
+//Categorize content
+const response = await wetrocloud.categorize({
+    resource: "match review: John Cena vs. The Rock",
+    type: "text",
+    json_schema: { 'label': '' },
+    categories: ["football", "coding", "entertainment", "basketball", "wrestling", "information"],
+    prompt: "Where does this fall under?"
+  });
+
+  console.log("Categorizing resource", result);
 ```
 
 ### 9. `textGeneration()`
@@ -247,6 +293,8 @@ Generates text without retrieval-augmented generation (RAG).
 
 - `messages: { role: "user" | "system" | "assistant", content: string }[]` - Message history.
 
+- `stream?: boolean` - Optional. Determines whether the response should be streamed. Defaults to `false`.
+
 #### **Return Type:**
 
 ```typescript
@@ -256,10 +304,20 @@ Promise<IGenericResponse | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.textGeneration({
-  model: "gpt-4",
-  messages: [{ "role": "user", "content": "Tell me a joke." }],
-});
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+
+// Text Generation
+const response = await wetrocloud.textGeneration({
+  messages: [
+      {"role": "system", "content": "You are a helpful assistant."}, 
+      {"role": "user", "content": "Write a short poem about technology."}
+  ],
+  model: "llama-3.3-70b"
+})
+
+console.log("Generation without RAG", result);
 ```
 
 ### 10. `imageToText()`
@@ -281,10 +339,20 @@ Promise<IGenericResponse | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.imageToText({
-  image_url: "https://example.com/image.jpg",
-  request_query: "Extract text from this image.",
-});
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+
+const imageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQBQcwHfud1w3RN25Wgys6Btt_Y-4mPrD2kg&s';
+const query = 'What animal is this?';
+
+// Extract text from an image and answer questions about it
+const response = await wetrocloud.imageToText({
+  image_url: imageUrl,
+  request_query: query
+})
+
+console.log("Image to text", response);
 ```
 
 ### 11. `extract<T>()`
@@ -306,12 +374,22 @@ Promise<IDataExtraction<T> | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-const response = await sdk.extract({
-  website_url: "https://example.com",
-  json_schema: { title: "", body: "" },
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+
+const website_url = "https://www.forbes.com/real-time-billionaires/#7583ee253d78"
+const json_schema = [{ "name": "<name of rich man>", "networth": "<amount worth>" }]
+
+// Extract structured data from a website
+const response = await wetrocloud.extract({
+   website_url,
+  json_schema:
 });
+
+console.log("Data extraction", result);
 ```
 
-## Documentation
+## Support
 
-For more details, check out the official API documentation: [WetroCloud Docs](https://docs.wetrocloud.com/introduction)
+For additional support, please contact support@wetrocloud.com or visit our website [WetroCloud Docs](https://docs.wetrocloud.com/introduction).
