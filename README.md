@@ -19,7 +19,7 @@ npm install wetro-sdk
 ```typescript
 import Wetrocloud from "wetro-sdk";
 
-const sdk = new Wetrocloud({ apiKey: "your-api-key" });
+const wetrocloud = new Wetrocloud({ apiKey: "your-api-key" });
 ```
 
 ## Available Methods
