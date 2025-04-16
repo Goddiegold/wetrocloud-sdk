@@ -9,16 +9,16 @@ import {
 
 
 let wetrocloud: Wetrocloud;
-let apiSecret: string | undefined;
+let apiKey: string | undefined;
 let collection_id: string;
 let resource_id: string;
 
 describe('Wetrocloud SDK Tests', () => {
 
     beforeAll(() => {
-        apiSecret = Config.TEST.WETROCLOUD_SECRET_KEY;
-        console.log("apiSecretKey", apiSecret);
-        wetrocloud = new Wetrocloud({ apiSecret });
+        apiKey = Config.TEST.WETROCLOUD_SECRET_KEY;
+        console.log("apiSecretKey", apiKey);
+        wetrocloud = new Wetrocloud({ apiKey });
     });
 
     it('should create a collection', async () => {

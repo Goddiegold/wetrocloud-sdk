@@ -563,7 +563,7 @@ class Wetrocloud {
                             const jsonPart = parts.shift();
                             if (jsonPart?.trim()) {
                                 try {
-                                    yield JSON.parse(jsonPart) as T;
+                                    yield JSON.parse(jsonPart);
                                 } catch (e) {
                                     console.error("Error parsing JSON chunk:", jsonPart, e);
                                 }
