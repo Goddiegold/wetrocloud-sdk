@@ -1,6 +1,6 @@
 {
   "name": "wetro-sdk",
-  "version": "1.6.1",
+  "version": "1.7.1",
   "type": "module",
   "main": "dist/cjs/src/index.js",
   "module": "dist/esm/src/index.js",
@@ -23,7 +23,9 @@
     "wetrocloud",
     "api",
     "sdk",
-    "typescript"
+    "typescript", 
+    "javascript", 
+    "RAG"
   ],
   "author": "Godwin Ehikhamhen",
   "license": "MIT",
