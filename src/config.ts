@@ -10,9 +10,8 @@ const Config = {
 };
 
 
+
+// if (typeof module !== 'undefined') {
+//     module.exports = Config;
+// }
 export default Config;
-
-if (typeof module !== 'undefined') {
-    module.exports = Config;
-
-}

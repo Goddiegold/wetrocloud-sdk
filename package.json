@@ -1,16 +1,20 @@
 {
   "name": "wetro-sdk",
   "version": "1.7.1",
-  "type": "module",
-  "main": "dist/cjs/src/index.js",
-  "module": "dist/esm/src/index.js",
-  "types": "dist/esm/src/index.d.ts",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "exports": {
-    "import": "./dist/esm/src/index.js",
-    "require": "./dist/cjs/src/index.js"
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.cjs.json",
+    "build": "tsup && node fix-dts.js",
     "prepublishOnly": "npm run build",
     "test": "jest"
   },
@@ -23,8 +27,8 @@
     "wetrocloud",
     "api",
     "sdk",
-    "typescript", 
-    "javascript", 
+    "typescript",
+    "javascript",
     "RAG"
   ],
   "author": "Godwin Ehikhamhen",
@@ -34,8 +38,10 @@
     "@types/node": "^22.13.10",
     "dotenv": "^16.4.7",
     "jest": "^29.7.0",
+    "replace-in-file": "^8.3.0",
     "ts-jest": "^29.2.6",
     "ts-node": "^10.9.2",
+    "tsup": "^8.4.0",
     "typescript": "^5.8.2"
   },
   "dependencies": {

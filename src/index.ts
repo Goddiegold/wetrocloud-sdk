@@ -36,7 +36,7 @@ class Wetrocloud {
      * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/create
      * 
      */
-    public async createCollection({ collection_id }: { collection_id?: string }): Promise<ICreateCollection> {
+    public async createCollection({ collection_id }: { collection_id?: string }): Promise<ICreateCollection | IErrorMessage> {
         try {
             const formData = new FormData()
             formData.append("collection_id", collection_id || generateRandomString(15))
@@ -47,8 +47,7 @@ class Wetrocloud {
             })
             return res as ICreateCollection;
         } catch (e) {
-            errorMessage(e)
-            return e
+            return { message: errorMessage(e) }
         }
     }
 
@@ -687,6 +686,9 @@ class Wetrocloud {
 
 export default Wetrocloud;
 export * from './types/index.js';
-if (typeof module !== 'undefined') {
+
+// Safely support CJS
+if (typeof require !== 'undefined' && typeof module !== 'undefined' && module.exports) {
     module.exports = Wetrocloud;
-}    
+    
+  }
