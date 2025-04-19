@@ -8,7 +8,7 @@ The **WetroCloud SDK** provides an easy way to interact with the WetroCloud API,
 
 ```sh
 
-npm install wetro-sdk
+npm install wetrocloud-sdk
 
 ```
 
@@ -17,7 +17,7 @@ npm install wetro-sdk
 ### Importing the SDK
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud({ apiKey: "your-api-key" });
 ```
@@ -41,7 +41,7 @@ Promise<ICreateCollection | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 
@@ -64,7 +64,7 @@ Promise<IListCollection[] | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
  
 const wetrocloud = new Wetrocloud();
 const response = await wetrocloud.listCollections();
@@ -93,7 +93,7 @@ Promise<IInsertResourceCollection | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 const response = await wetrocloud.insertResource({
@@ -132,7 +132,7 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 
@@ -170,7 +170,7 @@ Promise<IErrorMessage | IQueryResourceCollectionDynamic<T>>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 const response = await wetrocloud.chat({
@@ -204,7 +204,7 @@ Promise<IGenericResponse | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 const response = await wetrocloud.deleteResource({
@@ -232,7 +232,7 @@ Promise<IGenericResponse | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 const response = await wetrocloud.deleteCollection({
@@ -267,7 +267,7 @@ Promise<ICatergorizeResource<T> | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 
@@ -304,7 +304,7 @@ Promise<IGenericResponse | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 
@@ -339,7 +339,7 @@ Promise<IGenericResponse | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 
@@ -374,7 +374,7 @@ Promise<IDataExtraction<T> | IErrorMessage>;
 #### **Example:**
 
 ```typescript
-import Wetrocloud from "wetro-sdk";
+import Wetrocloud from "wetrocloud-sdk";
 
 const wetrocloud = new Wetrocloud();
 
