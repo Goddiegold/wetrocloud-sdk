@@ -659,16 +659,16 @@ class Wetrocloud {
  * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/data-extraction
  */
     public async extract<T>({
-        website_url,
+        website,
         json_schema
     }: {
-        website_url: string,
+        website: string,
         json_schema: T | T[]
     }): Promise<IDataExtraction<T> | IErrorMessage> {
         try {
 
             const formData = new FormData();
-            formData.append('website', website_url)
+            formData.append('website', website)
             formData.append('json_schema', JSON.stringify(json_schema))
 
             const res = await this.axiosApi.request({

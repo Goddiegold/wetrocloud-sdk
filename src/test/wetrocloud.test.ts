@@ -32,7 +32,7 @@ describe('Wetrocloud SDK Tests', () => {
         } catch (error) {
             throw error; // Re-throw the error to fail the test
         }
-    }, 10000);
+    }, 30000);
 
 
     it('should list all collections', async () => {
@@ -120,7 +120,7 @@ describe('Wetrocloud SDK Tests', () => {
         } catch (error) {
 
         }
-    })
+    }, 30000)
 
     it('delete a resource', async () => {
         try {
@@ -136,7 +136,7 @@ describe('Wetrocloud SDK Tests', () => {
         } catch (error) {
             throw error; // Re-throw the error to fail the test
         }
-    })
+    }, 30000)
 
     it('categorize a resource', async () => {
         try {
@@ -217,7 +217,7 @@ describe('Wetrocloud SDK Tests', () => {
             const website = "https://www.forbes.com/real-time-billionaires/#7583ee253d78"
             const json_schema = [{ "name": "<name of rich man>", "networth": "<amount worth>" }]
             const result = await wetrocloud.extract({
-                website_url: website,
+                website,
                 json_schema
             })
 

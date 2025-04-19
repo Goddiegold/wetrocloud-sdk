@@ -378,12 +378,12 @@ import Wetrocloud from "wetro-sdk";
 
 const wetrocloud = new Wetrocloud();
 
-const website_url = "https://www.forbes.com/real-time-billionaires/#7583ee253d78"
+const website = "https://www.forbes.com/real-time-billionaires/#7583ee253d78"
 const json_schema = [{ "name": "<name of rich man>", "networth": "<amount worth>" }]
 
 // Extract structured data from a website
 const response = await wetrocloud.extract({
-   website_url,
+   website,
   json_schema:
 });
 
