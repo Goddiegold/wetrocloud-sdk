@@ -105,7 +105,7 @@ const response = await wetrocloud.insertResource({
 console.log("insert a resource", response);
 ```
 
-### 4. `queryResource<T>()`
+### 4. `queryCollection<T>()`
 
 Queries resources from a collection.
 
@@ -139,7 +139,7 @@ const wetrocloud = new Wetrocloud();
 const collectionId = '<collection_id>';
 const query = 'What are the sales trends for Q1?';
 
-const response = await wetrocloud.queryResource({
+const response = await wetrocloud.queryCollection({
   collection_id: collectionId,
   request_query: query,
 });
