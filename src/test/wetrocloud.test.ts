@@ -230,4 +230,9 @@ describe('Wetrocloud SDK Tests', () => {
             throw error; // Re-throw the error to fail the test
         }
     }, 30000)
+
+    it('testing', () => {
+      const result = wetrocloud.testing()
+        console.log("testing", result);
+    })
 });

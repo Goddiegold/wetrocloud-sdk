@@ -682,6 +682,11 @@ class Wetrocloud {
             return { message: errorMessage(e) }
         }
     }
+    
+    public testing() {
+        console.log("Testing")
+        return "Testing.."
+    }
 }
 
 export default Wetrocloud;
