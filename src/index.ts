@@ -10,6 +10,7 @@ import {
     ICreateCollection, IDataExtraction, IErrorMessage,
     IGenericResponse,
     IInsertResourceCollection, IListCollection,
+    IMarkDown,
     IQueryResourceCollectionDynamic
 } from "./types/index.js";
 import { errorMessage, generateRandomString, RequestMethods } from "./utils.js";
@@ -682,6 +683,122 @@ class Wetrocloud {
             return { message: errorMessage(e) }
         }
     }
+
+    /**
+     * Converts a markdown resource (local file or URL) into structured markdown content
+     * using WetroCloud's markdown-converter endpoint.
+     *
+     * - If the `resource_type` is `"file"` and the `resource` is a local file path,
+     *   the method uploads the file to WetroCloud and obtains a public URL.
+     * - The final resource (uploaded URL or original link) is then submitted for conversion.
+     *
+     * @param {Object} params - The input parameters.
+     * @param {string} params.resource - The file path or URL to convert.
+     * @param {string} params.resource_type - Indicates the resource type: "file" or "web".
+     *
+     * @returns {Promise<IMarkDown>} A promise that resolves with the converted markdown response.
+     *
+     * @throws Will throw an error if file upload or markdown conversion fails.
+     *
+     * @example
+     * const markdown = await sdk.markDownConverter({
+     *   resource: "https://example.com/file.md",
+     *   resource_type: "web"
+     * });
+     *
+     * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/markdown-converter
+     */
+    public async markDownConverter({
+        resource,
+        resource_type
+    }: {
+        resource: string,
+        resource_type: string
+    }): Promise<IMarkDown> {
+        try {
+            let finalResource = resource;
+            let finalType = resource_type;
+
+            if (!resource.startsWith("https://") && finalType === "file") {
+                const formData = new _FormData()
+                // const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
+                const fileStream = fs.createReadStream(`${process.cwd()}/${resource}`);
+                console.log({
+                    fileStream
+                })
+                formData.append("file", fileStream as unknown as Blob, path.basename(resource))
+                formData.append("collection_id", `wetrocloud-markdown-${generateRandomString(10)}`)
+                const uploadFileRes = await axios.post(`${Config.WETROCLOUD.UPLOAD_URL}/upload/`, formData, {
+                    headers: formData.getHeaders()
+                })
+                // console.log({
+                //     uploadFileRes
+                // })
+                finalResource = uploadFileRes?.data?.url
+                finalType = "file";
+            }
+
+            const res = await this.axiosApi.request({
+                url: "/markdown-converter/",
+                method: RequestMethods.POST,
+                data: {
+                    link: finalResource,
+                    resource_type: finalType,
+                }
+            })
+            return res as IMarkDown
+        } catch (e) {
+            // return e
+            console.log({ "Error": e })
+            throw e
+        }
+    }
+
+    /**
+ * Retrieves a transcript from a video using WetroCloud's transcript endpoint.
+ *
+ * This method sends a request to extract the spoken content from the given YouTube video link
+ * and returns a structured transcript or an error message.
+ *
+ * @param {Object} params - Input parameters.
+ * @param {string} params.resource - The video URL.
+ * @param {'youtube'} params.resource_type - The type of resource. Must be "youtube".
+ *
+ * @returns {Promise<IInsertResourceCollection | IErrorMessage>}
+ * A promise that resolves to the transcript resource metadata or an error message.
+ *
+ * @example
+ * const response = await sdk.transcript({
+ *   resource: "https://www.youtube.com/watch?v=example",
+ *   resource_type: "youtube"
+ * });
+ *
+ * @see WetroCloud Docs: https://docs.wetrocloud.com/endpoint-explanations/transcript
+ */
+public async transcript({
+        resource,
+        resource_type
+    }: {
+        resource: string,
+        resource_type: 'youtube'
+    }): Promise<IInsertResourceCollection | IErrorMessage> {
+        try {
+
+            const res = await this.axiosApi.request({
+                url: "/transcript/",
+                method: RequestMethods.POST,
+                data: {
+                    link: resource,
+                    resource_type,
+                }
+            })
+            return res as IInsertResourceCollection
+        } catch (e) {
+            // return e
+            console.log({ "Error": e })
+            throw e
+        }
+    }
 }
 
 export default Wetrocloud;
@@ -690,5 +807,5 @@ export * from './types/index.js';
 // Safely support CJS
 if (typeof require !== 'undefined' && typeof module !== 'undefined' && module.exports) {
     module.exports = Wetrocloud;
-    
-  }
+
+}

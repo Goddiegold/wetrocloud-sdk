@@ -37,7 +37,21 @@ export interface IGenericResponse {
 export interface IDataExtraction<T> {
     response: {
         [x: string]: T | T[]
-    }, 
+    },
+    tokens: number,
+    success: boolean
+}
+
+export interface ITrancript {
+    response: {
+        data: { start: string, dur: string, text: string }[]
+    },
+    tokens: number,
+    success: boolean
+}
+
+export interface IMarkDown {
+    response: string,
     tokens: number,
     success: boolean
 }

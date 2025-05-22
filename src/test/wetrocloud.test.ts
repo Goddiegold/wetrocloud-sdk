@@ -230,4 +230,33 @@ describe('Wetrocloud SDK Tests', () => {
             throw error; // Re-throw the error to fail the test
         }
     }, 30000)
+
+    it('markdown converter', async () => {
+        try {
+            const result = await wetrocloud.markDownConverter({
+                // resource: "https://dev.to/hayleycodes/deploying-a-node-js-site-to-vultr-j8d",
+                // type: "web"
+                resource: './doc.pdf',
+                resource_type: 'file',
+            })
+
+            // console.log("markdown converter", JSON.stringify(result));
+            expect(result).toHaveProperty('response');
+        } catch (error) {
+            throw error; // Re-throw the error to fail the test
+        }
+    }, 30000)
+
+    it('transcribe', async () => {
+        try {
+            const result = await wetrocloud.transcript({
+                resource: "https://www.youtube.com/watch?v=KQELOlNHRxg",
+                resource_type: "youtube"
+            })
+            console.log("transcribe", JSON.stringify(result));
+            expect(result).toHaveProperty('response');
+        } catch (error) {
+            throw error; // Re-throw the error to fail the test
+        }
+    }, 30000)
 });

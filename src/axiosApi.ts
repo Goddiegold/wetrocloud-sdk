@@ -9,7 +9,7 @@ export default class AxiosAPI {
         this.apiKey = apiKey;
 
         this.axiosInstance = axios.create({
-            baseURL: Config.WETROCLOUD.API_URL + "/v1",
+            baseURL: Config.WETROCLOUD.API_URL + "/v2",
             headers: {
                 Authorization: `Token ${this.apiKey}`,
                 'Content-Type': 'application/json',
