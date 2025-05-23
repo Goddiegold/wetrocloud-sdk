@@ -721,7 +721,7 @@ class Wetrocloud {
 
             if (!resource.startsWith("https://") && finalType === "file") {
                 const formData = new _FormData()
-                // const fileStream = fs.createReadStream(`${__dirname}/${resource}`);
+                // const fileStream = fs.createReadStream(`${__dirname}/${resource}`);    
                 const fileStream = fs.createReadStream(`${process.cwd()}/${resource}`);
                 console.log({
                     fileStream
