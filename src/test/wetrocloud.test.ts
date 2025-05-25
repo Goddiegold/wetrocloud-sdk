@@ -234,13 +234,15 @@ describe('Wetrocloud SDK Tests', () => {
     it('markdown converter', async () => {
         try {
             const result = await wetrocloud.markDownConverter({
-                // resource: "https://dev.to/hayleycodes/deploying-a-node-js-site-to-vultr-j8d",
-                // type: "web"
-                resource: './doc.pdf',
-                resource_type: 'file',
+                // resource: './doc.pdf',
+                // resource_type: 'file',
+                // resource: 'https://medium.com/@AlexanderObregon/a-brief-history-of-artificial-intelligence-1656693721f9#:~:text=In%20this%20article%2C%20we%20explore,learning%20are%20breaking%20new%20ground.',
+                // resource_type: 'file',
+                resource:"https://res.cloudinary.com/dxcb59rb3/image/upload/v1747912102/zy69smzbjqtogtjlszki.jpg", 
+                resource_type:"image"
             })
 
-            // console.log("markdown converter", JSON.stringify(result));
+            console.log(result);
             expect(result).toHaveProperty('response');
         } catch (error) {
             throw error; // Re-throw the error to fail the test
@@ -250,7 +252,7 @@ describe('Wetrocloud SDK Tests', () => {
     it('transcribe', async () => {
         try {
             const result = await wetrocloud.transcript({
-                resource: "https://www.youtube.com/watch?v=KQELOlNHRxg",
+                resource: "https://www.youtube.com/watch?v=m4qBwGnubew&pp=ygURZ29vZ2xlIGFpIHJlbGVhc2U%3D",
                 resource_type: "youtube"
             })
             console.log("transcribe", JSON.stringify(result));
