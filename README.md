@@ -105,7 +105,7 @@ const response = await wetrocloud.insertResource({
 console.log("insert a resource", response);
 ```
 
-### 4. `queryResource<T>()`
+### 4. `queryCollection<T>()`
 
 Queries resources from a collection.
 
@@ -139,7 +139,7 @@ const wetrocloud = new Wetrocloud();
 const collectionId = '<collection_id>';
 const query = 'What are the sales trends for Q1?';
 
-const response = await wetrocloud.queryResource({
+const response = await wetrocloud.queryCollection({
   collection_id: collectionId,
   request_query: query,
 });
@@ -389,6 +389,85 @@ const response = await wetrocloud.extract({
 
 console.log("Data extraction", result);
 ```
+
+Here are the markdown-formatted documentation sections for both `markDownConverter()` and `transcript()` methods, following the format of your `extract<T>()` example:
+
+---
+
+### 12. `markDownConverter()`
+
+Converts a markdown resource (URL or local file) into structured markdown content using WetroCloud.
+
+#### **Parameters:**
+
+* `resource: string` – The markdown file path or URL.
+* `resource_type: string` – Type of resource, e.g., `"file"` or `"web"`.
+
+#### **Return Type:**
+
+```ts
+Promise<IMarkDown>
+```
+
+#### **Example:**
+
+```ts
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+
+const resource = "https://www.forbes.com/real-time-billionaires/#7583ee253d78"; 
+const resource_type = "web";
+
+// Convert markdown file to structured markdown
+const result = await wetrocloud.markDownConverter({
+  resource,
+  resource_type
+});
+
+console.log("Converted Markdown", result);
+```
+
+---
+
+### 13. `transcript()`
+
+Retrieves transcript data from a YouTube video via WetroCloud.
+
+#### **Parameters:**
+
+* `resource: string` – The YouTube video URL.
+* `resource_type: 'youtube'` – Must be set to `"youtube"`.
+
+#### **Return Type:**
+
+```ts
+Promise<ITrancript>
+```
+
+#### **Example:**
+
+```ts
+import Wetrocloud from "wetro-sdk";
+
+const wetrocloud = new Wetrocloud();
+
+const resource = "https://www.youtube.com/watch?v=m4qBwGnubew&pp=ygURZ29vZ2xlIGFpIHJlbGVhc2U%3D";
+const resource_type = "youtube";
+
+// Retrieve transcript from YouTube video
+const result = await wetrocloud.transcript({
+  resource,
+  resource_type
+});
+
+console.log("Transcript result", result);
+```
+
+---
+
+Let me know if you want these grouped in a table of contents or need this output styled for a README or documentation website.
+
 
 ## Support
 
